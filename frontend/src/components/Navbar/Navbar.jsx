@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import './navbar.css'
+import './Navbar.css'
 import {assets}from '../../assets/assets'
 const Navbar = () => {
 
