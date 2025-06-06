@@ -21,5 +21,17 @@
     text-align: center;
     margin: 20px 0;
     overflow: scroll;
-    
+
 }
+
+.explore-menu-list::-webkit-scrollbar {
+    display: none;
+}
+
+ .explore-menu-list-item img{
+    width: 7.5vw;
+    min-width: 80px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: 0.2s;
+ }
