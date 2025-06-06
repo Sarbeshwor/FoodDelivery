@@ -1,6 +1,7 @@
 import React from 'react'
 import './Header.css'
-const header = () => {
+
+const Header = () => {
   return (
     <div className='header'>
       <div className="header-contents">
@@ -14,6 +15,7 @@ const header = () => {
         <button>View Menu</button>
       </div>
     </div>
+
   )
 }
 
