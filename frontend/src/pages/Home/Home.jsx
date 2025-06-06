@@ -6,6 +6,7 @@ import {assets} from '../../assets/assets'
 import ExploreMenu from '../../components/ExplorMenu/ExploreMenu'
 import FoodDisplay from '../../components/FoodDisplay/FoodDisplay'
 import Header from '../../components/Header/header'
+// import Header from '../../components/Header/header'
 
 const Home = () => {
 
@@ -13,7 +14,7 @@ const Home = () => {
 
   return (
     <div>
-      <Header/>
+      <Header />
       <ExploreMenu category={category} setCategory={setCategory}/>
       <FoodDisplay category={category}/>
 
