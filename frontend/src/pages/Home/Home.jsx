@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import './Home.css'
 import {assets} from '../../assets/assets'
 
-import Header from '../../components/Header/Header'
+
 import ExploreMenu from '../../components/ExplorMenu/ExploreMenu'
 import FoodDisplay from '../../components/FoodDisplay/FoodDisplay'
 
@@ -12,7 +12,7 @@ const Home = () => {
 
   return (
     <div>
-      <Header/>
+      
       <ExploreMenu category={category} setCategory={setCategory}/>
       <FoodDisplay category={category}/>
 
