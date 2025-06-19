@@ -60,21 +60,3 @@
     transition: all 0.3s ease-in-out;
     padding: 1.1vw 2.2vw;
 }
-
-@media (max-width: 1050px){
-    .header-contents{
-        max-width: 45%;
-    }
-}
-
-@media (max-width: 750px){
-    .header-contents{
-        max-width: 65%;
-    }
-    .header-contents p{
-        display: none;
-    }
-    .header-contents button{
-        padding: 2vw 4vw;
-    }
-}

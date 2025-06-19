@@ -1,27 +1,25 @@
 import React, { useState } from 'react'
 import './Navbar.css'
 import {assets}from '../../assets/assets'
-import {Link} from 'react-router-dom'
+const Navbar = () => {
 
-const Navbar = ({setShowLogin}) => {
-
-    const [menu,setMenu] = useState("Menu")
+    const [menu,setMenu] = useState("Home")
   return (
     <div className='navbar'>
-        <Link to='/'><img src={assets.logo} alt="" className="logo" /></Link>
+        <img src={assets.logo} alt="" className="logo" />
         <ul className="navbar-menu">
-            <Link to='/' onClick={()=>setMenu("Home")} className={menu=="Home"?"active":""}>Home</Link>
-            <a href='#explore-menu' onClick={()=>setMenu("Menu")} className={menu=="Menu"?"active":""}>Menu</a>
-            <a href='#app-download' onClick={()=>setMenu("Stories")} className={menu=="Stories"?"active":""}>Stories</a>
-            <a href='#footer' onClick={()=>setMenu("Contact us")} className={menu=="Contact us"?"active":""}>Contact us</a>
+            <li onClick={()=>setMenu("Home")} className={menu=="Home"?"active":""}>Home</li>
+            <li onClick={()=>setMenu("Menu")} className={menu=="Menu"?"active":""}>Menu</li>
+            <li onClick={()=>setMenu("Stories")} className={menu=="Stories"?"active":""}>Stories</li>
+            <li onClick={()=>setMenu("Contact us")} className={menu=="Contact us"?"active":""}>Contact us</li>
         </ul>
         <div className="navbar-right">
             <img src={assets.search_icon} alt="" />
             <div className="navbar-search-icon">
-                <Link to='/cart'><img src={assets.basket_icon} alt="" /></Link>
+                <img src={assets.basket_icon} alt="" />
                 <div className="dot"></div>
             </div>
-                <button onClick={()=>setShowLogin(true)}>sign in</button>
+                <button>sign in</button>
             
         </div>
     </div>
