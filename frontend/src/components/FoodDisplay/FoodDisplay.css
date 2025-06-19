@@ -7,6 +7,7 @@
     font-size: max(2vw,24px);
     font-weight: 600;
 }
+
 .food-display-list{
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -14,3 +15,87 @@
     gap: 30px;
     row-gap: 50px;
     }
+
+
+.food-display-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filter-toggle-btn {
+    padding: 6px 14px;
+    background-color: #3bb77e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.filter-panel {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.filter-option {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filter-icon-btn {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.filter-icon-btn:hover {
+    transform: scale(1.1);
+}
+
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    margin-top: 10px;
+    align-items: center;
+}
+
+.filter-tag {
+    background-color: #3bb77e;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.remove-tag {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+
+.clear-all-btn {
+    background-color: transparent;
+    color: #3bb77e;
+    border: 1px solid #3bb77e;
+    border-radius: 20px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-size: 14px;
+}

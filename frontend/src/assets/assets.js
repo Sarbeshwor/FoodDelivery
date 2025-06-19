@@ -59,6 +59,11 @@ import profile_icon from './profile_icon.png'
 import bag_icon from './bag_icon.png'
 import logout_icon from './logout_icon.png'
 import parcel_icon from './parcel_icon.png'
+import filter from './filter.png'
+
+
+import user_pic from './female_photo.png'
+
 
 export const assets = {
     logo,
@@ -79,8 +84,47 @@ export const assets = {
     profile_icon,
     logout_icon,
     bag_icon,
-    parcel_icon
+    parcel_icon,
+    filter
 }
+
+export const user_list =[
+    {
+        user_name: "Sabita",
+        user_image: user_pic
+
+    },
+    {
+        user_name: "Sabita2",
+        user_image: user_pic
+
+    },
+    {
+        user_name: "Sabita3",
+        user_image: user_pic
+
+    },
+    {
+        user_name: "Sabita4",
+        user_image: user_pic
+
+    },
+    {
+        user_name: "Sabita",
+        user_image: user_pic
+
+    },
+    {
+        user_name: "Sabita5",
+        user_image: user_pic
+
+    },
+    {
+        user_name: "Sabita6",
+        user_image: user_pic
+
+    }
+]
 
 export const menu_list = [
     {
