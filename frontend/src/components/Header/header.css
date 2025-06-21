@@ -14,7 +14,6 @@
     align-items: start;
     gap: 1.5vw;
     max-width: 50%;
-    /* bottom: 10%; */
     left: 6vw;
     animation: fadeIn 1s ease-in-out;
 }

@@ -8,9 +8,14 @@
 }
 
 .navbar .logo{
+   margin-top: 0px;
    width: 150px;
    object-fit: cover;
   
+}
+
+.navbar header{
+    border-radius: 5px;
 }
 
 
