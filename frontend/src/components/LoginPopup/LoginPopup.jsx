@@ -17,7 +17,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
     if (currState === "Sign Up") {
       try {
-        const res = await fetch("http://localhost:5000/register", {
+        const res = await fetch(["http://localhost:5000/register","https://fooddelivery-uc9i.onrender.com"], {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
