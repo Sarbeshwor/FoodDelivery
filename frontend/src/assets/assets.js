@@ -60,6 +60,7 @@ import bag_icon from './bag_icon.png'
 import logout_icon from './logout_icon.png'
 import parcel_icon from './parcel_icon.png'
 import filter from './filter.png'
+import user_img from './logged_in.png'
 
 
 import user_pic from './female_photo.png'
@@ -85,7 +86,8 @@ export const assets = {
     logout_icon,
     bag_icon,
     parcel_icon,
-    filter
+    filter,
+    user_img
 }
 
 export const user_list =[

@@ -7,10 +7,10 @@ const bcrypt = require('bcrypt');
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Enable JSON parsing middleware early
+
 app.use(express.json());
 
-// Enable CORS
+
 app.use(cors({
   origin: ['http://localhost:5173', 'https://food-delivery-kxin.vercel.app'],
   credentials: true
@@ -69,7 +69,7 @@ app.post('/register', async (req, res) => {
   } catch (err) {
     console.error(err);
     console.error('Error during registration:', err);
-    
+
     res.status(500).json({ message: "Server error" });
   }
 });
