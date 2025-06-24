@@ -1,0 +1,42 @@
+.userdetail{
+  position: absolute;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    /* background-color: #00000090; */
+    display: grid;
+}
+.userdetail-container{
+    /* place-self: center;
+     */
+    position: absolute;
+    top:12vh;
+    right: 20px;
+    width: max(23vw,200px);
+    color: #808080;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    padding: 25px 30px;
+    border-radius: 8px;
+    font-size: 14px;
+    animation: fadeIn 1.5s;
+}
+.profile_button{
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    color: white;
+    background-color: #FEC240;
+    font-size: 15px;
+    cursor: pointer;
+    width: 98%;
+}
+.profile_button:hover{
+    background-color: whitesmoke;
+    color: #FEC240;
+    width: 100%;
+    transition: 0.3s;
+
+}

@@ -6,26 +6,37 @@ import Home from './pages/Home/Home'
 import Cart from './pages/Cart/Cart'
 import PlaceOrder from './pages/PlaceOrder/PlaceOrder'
 import LoginPopup from './components/LoginPopup/LoginPopup'
+import UserDetail from './components/UserDetail/UserDetail'
 import Footer from './components/Footer/Footer'
+import {ToastContainer} from 'react-toastify'
+
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false);
+  const [showUserDetail, setShowUserDetail] = useState(false);
 
   return (
     <>
-      {showLogin?<LoginPopup setShowLogin={setShowLogin}/>:<></>}
-      <div className='app'>
-        <Navbar setShowLogin={setShowLogin} />
+      {showLogin ? (
+        <LoginPopup setShowLogin={setShowLogin} setShowUserDetail={setShowUserDetail} />
+      ) : null}
+      
+      {showUserDetail ? (
+        <UserDetail setShowUserDetail={setShowUserDetail} />
+      ) : null}
+
+      <div className="app">
+        <Navbar setShowLogin={setShowLogin} setShowUserDetail={setShowUserDetail} />
         <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='/cart' element={<Cart />} />
-          <Route path='/order' element={<PlaceOrder />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/order" element={<PlaceOrder />} />
         </Routes>
         <Footer />
       </div>
+      <ToastContainer/>
     </>
-  )
-}
+  );
+};
 
 export default App;
-

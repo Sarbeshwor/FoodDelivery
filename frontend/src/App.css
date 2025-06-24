@@ -15,3 +15,10 @@ a{
     width: 80%;
     margin: auto;
 }
+.ToastContainer{
+    position: top-center;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    
+}

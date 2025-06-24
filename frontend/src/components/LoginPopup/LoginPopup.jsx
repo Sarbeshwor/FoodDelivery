@@ -2,11 +2,16 @@ import React, { useState, useContext } from "react";
 import "./LoginPopup.css";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
+import { toast } from "react-toastify";
+
+
 
 const LoginPopup = ({ setShowLogin }) => {
   const [currState, setCurrState] = useState("Login");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { setUser } = useContext(StoreContext); 
+ 
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,13 +34,13 @@ const LoginPopup = ({ setShowLogin }) => {
 
         const data = await res.json();
         if (res.ok) {
-          alert("Account created!");
+          // alert("Account created!");
           setCurrState("Login");
         } else {
-          alert(data.message || "Signup failed");
+          // alert(data.message || "Signup failed");
         }
       } catch (err) {
-        alert("Network error: " + err.message);
+        // alert("Network error: " + err.message);
       }
     } else if (currState === "Login") {
       try {
@@ -50,21 +55,24 @@ const LoginPopup = ({ setShowLogin }) => {
 
         const data = await res.json();
         if (res.ok) {
-          alert(`Welcome back, ${data.user.username}!`);
+          // toast.success(`Welcome back, ${data.user.username}!`);
+          toast.success(`Welcome back, ${data.user.username}!`);
+          
+          // alert(`Welcome back, ${data.user.username}!`);
           setIsLoggedIn(true);
           setShowLogin(false);
           setUser(data.user); 
         } else {
-          alert(data.message || "Login failed");
+          // alert(data.message || "Login failed");
         }
       } catch (err) {
-        alert("Network error: " + err.message);
+        // alert("Network error: " + err.message);
       }
     }
   };
 
   return (
-    <div className="login-popup">
+    <div className="login-popup"> 
       <form className="login-popup-container" onSubmit={handleSubmit}>
         <div className="login-popup-title">
           <h2>{currState}</h2>
