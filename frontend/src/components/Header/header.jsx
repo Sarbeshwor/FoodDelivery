@@ -9,8 +9,6 @@ const header = () => {
         <h2>
           Order Food Online
         </h2>
-        <p>Choose your local restaurant and enjoy the food</p>
-        
       </div>
       <div className="buttons">
         <button>View Menu</button>

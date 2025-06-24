@@ -63,7 +63,15 @@ import filter from './filter.png'
 import user_img from './logged_in.png'
 
 
-import user_pic from './female_photo.png'
+import user_pic_1 from './user_1.png'
+import user_pic_2 from './user_2.png'
+import user_pic_3 from './user_3.png'
+import user_pic_4 from './user_4.png'
+import user_pic_5 from './user_5.png'
+import user_pic_6 from './user_6.png'
+import user_pic_7 from './user_7.png'
+import user_pic_8 from './user_8.png'
+
 
 
 export const assets = {
@@ -92,38 +100,43 @@ export const assets = {
 
 export const user_list =[
     {
-        user_name: "Sabita",
-        user_image: user_pic
+        user_name: "User1",
+        user_image: user_pic_1
 
     },
     {
-        user_name: "Sabita2",
-        user_image: user_pic
+        user_name: "User2",
+        user_image: user_pic_2
 
     },
     {
-        user_name: "Sabita3",
-        user_image: user_pic
+        user_name: "User3",
+        user_image: user_pic_3
 
     },
     {
-        user_name: "Sabita4",
-        user_image: user_pic
+        user_name: "User4",
+        user_image: user_pic_4
 
     },
     {
-        user_name: "Sabita",
-        user_image: user_pic
+        user_name: "User5",
+        user_image: user_pic_5
 
     },
     {
-        user_name: "Sabita5",
-        user_image: user_pic
+        user_name: "User6",
+        user_image: user_pic_6
 
     },
     {
-        user_name: "Sabita6",
-        user_image: user_pic
+        user_name: "User7",
+        user_image: user_pic_7
+
+    },
+    {
+        user_name: "User8",
+        user_image: user_pic_8
 
     }
 ]

@@ -46,14 +46,23 @@
     border-radius: 4px;
 }
 
-.login-popup-container button{
+.login-popup-container button {
     border: none;
-    padding: 10px;
+    padding: 10px 20px;
     border-radius: 4px;
     color: white;
     background-color: #FEC240;
     font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
 }
+
+.login-popup-container button:hover {
+    border: 1px solid #FEC240;
+    background: white;
+    color: #FEC240;
+}
+
 
 .login-popup-condition{
     display: flex;
