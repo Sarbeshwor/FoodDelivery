@@ -22,7 +22,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
     if (currState === "Sign Up") {
       try {
-        const res = await fetch("dpg-d1cp19ripnbc73c1n0rg-a.oregon-postgres.render.com/register", {
+        const res = await fetch("https://fooddelivery-uc9i.onrender.com/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -44,7 +44,7 @@ const LoginPopup = ({ setShowLogin }) => {
       }
     } else if (currState === "Login") {
       try {
-        const res = await fetch("dpg-d1cp19ripnbc73c1n0rg-a.oregon-postgres.render.com/login", {
+        const res = await fetch("https://fooddelivery-uc9i.onrender.com/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
