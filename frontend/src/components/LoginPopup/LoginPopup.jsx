@@ -22,7 +22,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
     if (currState === "Sign Up") {
       try {
-        const res = await fetch("https://food-delivery-kxin.vercel.app/register", {
+        const res = await fetch("dpg-d1cp19ripnbc73c1n0rg-a.oregon-postgres.render.com/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -44,7 +44,7 @@ const LoginPopup = ({ setShowLogin }) => {
       }
     } else if (currState === "Login") {
       try {
-        const res = await fetch("https://food-delivery-kxin.vercel.app/login", {
+        const res = await fetch("dpg-d1cp19ripnbc73c1n0rg-a.oregon-postgres.render.com/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -63,10 +63,10 @@ const LoginPopup = ({ setShowLogin }) => {
           setShowLogin(false);
           setUser(data.user); 
         } else {
-          // alert(data.message || "Login failed");
+          alert(data.message || "Login failed");
         }
       } catch (err) {
-        // alert("Network error: " + err.message);
+        alert("Network error: " + err.message);
       }
     }
   };
