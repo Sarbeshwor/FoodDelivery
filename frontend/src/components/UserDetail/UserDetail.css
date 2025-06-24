@@ -40,3 +40,20 @@
     transition: 0.3s;
 
 }
+.logout_button{
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    color: white;
+    background-color: #FEC240;
+    font-size: 15px;
+    cursor: pointer;
+    width: 98%;
+}
+.logout_button:hover{
+    background-color: whitesmoke;
+    color: #FEC240;
+    width: 100%;
+    transition: 0.3s;
+
+}

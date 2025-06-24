@@ -63,10 +63,12 @@ const LoginPopup = ({ setShowLogin }) => {
           setShowLogin(false);
           setUser(data.user); 
         } else {
-          alert(data.message || "Login failed");
+          // alert(data.message || "Login failed");
+          toast.error("Failed to login");
         }
       } catch (err) {
-        alert("Network error: " + err.message);
+        // alert("Network error: " + err.message);
+        toast.error("Network Issue");
       }
     }
   };
