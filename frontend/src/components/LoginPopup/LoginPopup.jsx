@@ -22,7 +22,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
     if (currState === "Sign Up") {
       try {
-        const res = await fetch("http://localhost:5000/register", {
+        const res = await fetch("https://food-delivery-kxin.vercel.app/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -44,7 +44,7 @@ const LoginPopup = ({ setShowLogin }) => {
       }
     } else if (currState === "Login") {
       try {
-        const res = await fetch("http://localhost:5000/login", {
+        const res = await fetch("https://food-delivery-kxin.vercel.app/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
