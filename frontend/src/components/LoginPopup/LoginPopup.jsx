@@ -22,7 +22,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
     if (currState === "Sign Up") {
       try {
-        const res = await fetch("http://localhost:5000/register", {
+        const res = await fetch("https://fooddelivery-uc9i.onrender.com/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -48,7 +48,7 @@ const LoginPopup = ({ setShowLogin }) => {
       }
     } else if (currState === "Login") {
       try {
-        const res = await fetch("http://localhost:5000/login", {
+        const res = await fetch("https://fooddelivery-uc9i.onrender.com/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -68,9 +68,11 @@ const LoginPopup = ({ setShowLogin }) => {
           setUser(data.user); 
         } else {
           // alert(data.message || "Login failed");
+          toast.error("Failed to login");
         }
       } catch (err) {
         // alert("Network error: " + err.message);
+        toast.error("Network Issue");
       }
     }
   };

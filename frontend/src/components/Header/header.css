@@ -3,7 +3,7 @@
     height: 34vw;
     margin: 30px auto;
     background: url('/header_img.png') no-repeat ;
-    border-radius: 12px;
+    border-radius: 20px;
     background-size: contain;
     position: relative;
 }
@@ -35,10 +35,10 @@
     display: flex;
     flex-direction: column;
     align-items: start;
-    gap: 1.5vw;
+    gap: 2vw;
     max-width: 50%;
-    bottom: 10%;
-    left: 6vw;
+    bottom: 85%;
+    left: 63vw;
     animation: fadeIn 3s ease-in-out;
 }
 
@@ -50,7 +50,6 @@
     font-size: max(1vw, 13px);
     border-radius: 50px;
     background-color: white;
-    /* bottom: 10%; */
 }
 
 .buttons button:hover{

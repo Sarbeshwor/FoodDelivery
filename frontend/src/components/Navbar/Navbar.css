@@ -37,7 +37,7 @@
     background: transparent;
     font-size: 16px;
     color: #49557e;
-    border: 1px solid #FBA120;
+    border: 1px solid #FEC240;
     padding: 10px 30px ;
     border-radius: 15px;
     cursor: pointer;
@@ -53,7 +53,7 @@
 
 .navbar .active{
     padding-bottom: 2px;
-    border-bottom: 2px solid #FBA120;
+    border-bottom: 2px solid #FEC240;
 }
 
 .navbar li{
@@ -70,7 +70,7 @@
     position: absolute;
     min-width: 10px;
     min-height: 10px;
-    background: #FBA120;
+    background: #FEC240;
     border-radius: 5px;
     top: -8px;
     right: -8px;
