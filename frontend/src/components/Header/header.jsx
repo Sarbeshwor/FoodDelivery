@@ -14,7 +14,6 @@ const header = () => {
         <button>View Menu</button>
       </div>
     </div>
-
   )
 }
 
