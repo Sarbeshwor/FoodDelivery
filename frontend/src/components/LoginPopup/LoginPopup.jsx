@@ -34,10 +34,14 @@ const LoginPopup = ({ setShowLogin }) => {
 
         const data = await res.json();
         if (res.ok) {
+          toast.success("Account created successfully!");
+
           // alert("Account created!");
           setCurrState("Login");
         } else {
           // alert(data.message || "Signup failed");
+          toast.error(data.message || "Signup failed");
+          
         }
       } catch (err) {
         // alert("Network error: " + err.message);
