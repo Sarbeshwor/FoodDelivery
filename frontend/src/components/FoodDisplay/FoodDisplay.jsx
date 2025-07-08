@@ -3,7 +3,7 @@ import "./FoodDisplay.css";
 import FoodItem from "../FoodItem/FoodItem";
 import { assets, menu_list } from "../../assets/assets";
 
-const FoodDisplay = ({ category }) => {
+const FoodDisplay = () => {
   // Local state for food items
   const [foodList, setFoodList] = useState([]);
 
@@ -15,9 +15,12 @@ const FoodDisplay = ({ category }) => {
   useEffect(() => {
     const fetchFoodItems = async () => {
       try {
-        const response = await fetch("https://fooddelivery-uc9i.onrender.com/api/food-items"); 
-        console.log(data);
+        const response = await fetch("http://localhost:5000/api/food-items");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
+        console.log("Fetched food items:", data);
         setFoodList(data);
       } catch (error) {
         console.error("Failed to fetch food items:", error);
@@ -27,7 +30,7 @@ const FoodDisplay = ({ category }) => {
     fetchFoodItems();
   }, []);
 
-  // Filter logic remains same
+  // Handle category checkbox toggle
   const handleCategoryChange = (menu_name) => {
     if (selectedCategories.includes(menu_name)) {
       setSelectedCategories(selectedCategories.filter((cat) => cat !== menu_name));
@@ -36,6 +39,7 @@ const FoodDisplay = ({ category }) => {
     }
   };
 
+  // Filtered food based on selected categories
   const filteredFood =
     selectedCategories.length === 0
       ? foodList
@@ -85,16 +89,22 @@ const FoodDisplay = ({ category }) => {
             </div>
           ))}
 
-          <button className="clear-all-btn" onClick={() => setSelectedCategories([])}>
+          <button
+            className="clear-all-btn"
+            onClick={() => {
+              setSelectedCategories([]);
+              setShowFilter(false);
+            }}
+          >
             Clear All
           </button>
         </div>
       )}
 
       <div className="food-display-list">
-        {filteredFood.map((item, index) => (
+        {filteredFood.map((item) => (
           <FoodItem
-            key={index}
+            key={item._id}
             id={item._id}
             name={item.name}
             price={item.price}
