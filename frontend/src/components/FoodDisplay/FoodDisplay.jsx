@@ -15,7 +15,8 @@ const FoodDisplay = ({ category }) => {
   useEffect(() => {
     const fetchFoodItems = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/food-items");
+        const response = await fetch("https://fooddelivery-uc9i.onrender.com/food-items"); 
+
         const data = await response.json();
         setFoodList(data);
       } catch (error) {
