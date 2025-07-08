@@ -12,7 +12,12 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
+<<<<<<< Updated upstream
     "cors": "^2.8.5",  
+=======
+    "cloudinary": "^2.7.0",
+    "cors": "^2.8.5",
+>>>>>>> Stashed changes
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",

@@ -1,0 +1,12 @@
+Cloud name	dlouxq1cv
+API key	628681945711721
+API secret	p9AAWhOqayiPEFmkFdrEcEVStcE
+
+API environment variable	
+
+
+CLOUDINARY_URL=cloudinary://628681945711721:p9AAWhOqayiPEFmkFdrEcEVStcE@dlouxq1cv
+
+
+
+https://res.cloudinary.com/dlouxq1cv/image/upload/v1751994873/food_1_lcubmc.png
