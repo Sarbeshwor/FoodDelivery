@@ -1,21 +1,35 @@
-import React, { useContext, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./FoodDisplay.css";
-import { StoreContext } from "../../context/StoreContext";
 import FoodItem from "../FoodItem/FoodItem";
 import { assets, menu_list } from "../../assets/assets";
 
 const FoodDisplay = ({ category }) => {
-  const { food_list } = useContext(StoreContext);
+  // Local state for food items
+  const [foodList, setFoodList] = useState([]);
 
+  // Local state for filter UI
   const [showFilter, setShowFilter] = useState(false);
-
   const [selectedCategories, setSelectedCategories] = useState([]);
 
+  // Fetch food items from backend API on component mount
+  useEffect(() => {
+    const fetchFoodItems = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/food-items");
+        const data = await response.json();
+        setFoodList(data);
+      } catch (error) {
+        console.error("Failed to fetch food items:", error);
+      }
+    };
+
+    fetchFoodItems();
+  }, []);
+
+  // Filter logic remains same
   const handleCategoryChange = (menu_name) => {
     if (selectedCategories.includes(menu_name)) {
-      setSelectedCategories(
-        selectedCategories.filter((cat) => cat !== menu_name)
-      );
+      setSelectedCategories(selectedCategories.filter((cat) => cat !== menu_name));
     } else {
       setSelectedCategories([...selectedCategories, menu_name]);
     }
@@ -23,12 +37,11 @@ const FoodDisplay = ({ category }) => {
 
   const filteredFood =
     selectedCategories.length === 0
-      ? food_list
-      : food_list.filter((item) => selectedCategories.includes(item.category));
+      ? foodList
+      : foodList.filter((item) => selectedCategories.includes(item.category));
 
   return (
     <div className="food-display" id="food-display">
-      {}
       <div className="food-display-header">
         <h2>Trending dishes</h2>
         <img
@@ -38,7 +51,7 @@ const FoodDisplay = ({ category }) => {
           onClick={() => setShowFilter(!showFilter)}
         />
       </div>
-      {}
+
       {showFilter && (
         <div className="filter-panel">
           {menu_list.map((menu, index) => (
@@ -54,7 +67,7 @@ const FoodDisplay = ({ category }) => {
           ))}
         </div>
       )}
-      
+
       {selectedCategories.length > 0 && (
         <div className="active-filters">
           {selectedCategories.map((category, index) => (
@@ -63,9 +76,7 @@ const FoodDisplay = ({ category }) => {
               <span
                 className="remove-tag"
                 onClick={() =>
-                  setSelectedCategories(
-                    selectedCategories.filter((cat) => cat !== category)
-                  )
+                  setSelectedCategories(selectedCategories.filter((cat) => cat !== category))
                 }
               >
                 &times;
@@ -73,16 +84,12 @@ const FoodDisplay = ({ category }) => {
             </div>
           ))}
 
-         
-          <button
-            className="clear-all-btn"
-            onClick={() => setSelectedCategories([])}
-          >
+          <button className="clear-all-btn" onClick={() => setSelectedCategories([])}>
             Clear All
           </button>
         </div>
       )}
-      
+
       <div className="food-display-list">
         {filteredFood.map((item, index) => (
           <FoodItem
