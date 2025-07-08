@@ -25,7 +25,10 @@ hr {
 
 .app-content {
   display: flex;
-  flex-direction: row;
-  gap: 20px;
-  padding: 20px;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }

@@ -1,15 +1,35 @@
-.navbar{
+.navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 4%;
+    background-color: #ffffff;
+    border-bottom: 1px solid #eee;
 }
 
-.navbar .logo{
-   width: max(10%, 80px);
+.navbar .logo {
+    width: max(10%, 80px);
+    cursor: pointer;
 }
 
-.navbar .profile{
-    width: 80px;
+.navbar .profile {
+    width: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
 }
 
+@media (max-width: 900px) {
+    .navbar {
+        padding: 8px 2%;
+    }
+
+    .navbar .logo {
+        width: 100px;
+    }
+
+    .navbar .profile {
+        width: 32px;
+        height: 32px;
+    }
+}
