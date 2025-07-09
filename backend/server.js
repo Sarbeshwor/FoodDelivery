@@ -1,26 +1,22 @@
-// server.js
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(express.json());
-
+// Middlewares
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://food-delivery-kxin.vercel.app'],
+  origin: "http://localhost:5173",
   credentials: true
 }));
+app.use(express.json()); 
 
-// Import routes
-const foodItemsRouter = require('./routes/foodItems');
-const authRouter = require('./routes/auth');
+// Routes
+const authRouter = require("./routes/auth");
+app.use("/api/auth", authRouter);
 
-// Use routes
-app.use('/api/food-items', foodItemsRouter);
-app.use('/api/auth', authRouter);
-
+// Start server
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server running on http://localhost:${port}`);
 });

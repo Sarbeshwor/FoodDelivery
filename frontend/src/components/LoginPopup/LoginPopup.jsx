@@ -4,14 +4,12 @@ import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
 import { toast } from "react-toastify";
 
-
-
 const LoginPopup = ({ setShowLogin }) => {
   const [currState, setCurrState] = useState("Login");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { setUser } = useContext(StoreContext); 
- 
+  const { setUser } = useContext(StoreContext);
 
+  const [isKitchenOwner, setIsKitchenOwner] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,33 +20,34 @@ const LoginPopup = ({ setShowLogin }) => {
 
     if (currState === "Sign Up") {
       try {
-        const res = await fetch("https://fooddelivery-uc9i.onrender.com/register", {
+        const type = isKitchenOwner ? "kitchen" : "standard";
+        console.log("Sending type:", type);
+
+        const res = await fetch("http://localhost:5000/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             username: name,
             email,
             password,
+            type,
           }),
         });
 
         const data = await res.json();
         if (res.ok) {
           toast.success("Account created successfully!");
-
-          // alert("Account created!");
           setCurrState("Login");
+          setIsKitchenOwner(false);
         } else {
-          // alert(data.message || "Signup failed");
           toast.error(data.message || "Signup failed");
-          
         }
       } catch (err) {
-        // alert("Network error: " + err.message);
+        toast.error("Network error: " + err.message);
       }
     } else if (currState === "Login") {
       try {
-        const res = await fetch("https://fooddelivery-uc9i.onrender.com/login", {
+        const res = await fetch("http://localhost:5000/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -59,26 +58,21 @@ const LoginPopup = ({ setShowLogin }) => {
 
         const data = await res.json();
         if (res.ok) {
-          // toast.success(`Welcome back, ${data.user.username}!`);
           toast.success(`Welcome back, ${data.user.username}!`);
-          
-          // alert(`Welcome back, ${data.user.username}!`);
           setIsLoggedIn(true);
           setShowLogin(false);
-          setUser(data.user); 
+          setUser(data.user);
         } else {
-          // alert(data.message || "Login failed");
           toast.error("Failed to login");
         }
       } catch (err) {
-        // alert("Network error: " + err.message);
         toast.error("Network Issue");
       }
     }
   };
 
   return (
-    <div className="login-popup"> 
+    <div className="login-popup">
       <form className="login-popup-container" onSubmit={handleSubmit}>
         <div className="login-popup-title">
           <h2>{currState}</h2>
@@ -88,6 +82,7 @@ const LoginPopup = ({ setShowLogin }) => {
             alt="close"
           />
         </div>
+
         <div className="login-popup-inputs">
           {currState === "Login" ? null : (
             <input type="text" name="name" placeholder="Your Name" required />
@@ -100,6 +95,7 @@ const LoginPopup = ({ setShowLogin }) => {
             required
           />
         </div>
+
         <button disabled={isLoggedIn}>
           {isLoggedIn
             ? "Signed In"
@@ -108,10 +104,36 @@ const LoginPopup = ({ setShowLogin }) => {
             : "Login"}
         </button>
 
+        {currState === "Sign Up" && (
+          <div
+            className="kitchen-owner-checkbox"
+            style={{
+              margin: "10px 0",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <input
+              type="checkbox"
+              id="kitchenOwner"
+              checked={isKitchenOwner}
+              onChange={() => {
+                setIsKitchenOwner(!isKitchenOwner);
+                console.log("Kitchen owner checked:", !isKitchenOwner);
+              }}
+            />
+            <label htmlFor="kitchenOwner">
+              Sign up as kitchen owner (not compulsory)
+            </label>
+          </div>
+        )}
+
         <div className="login-popup-condition">
           <input type="checkbox" required />
           <p>By continuing, I agree to the terms of use & privacy policy.</p>
         </div>
+
         {currState === "Login" ? (
           <p>
             Create a new account?{" "}

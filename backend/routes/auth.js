@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 
 // Register route
 router.post('/register', async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, type } = req.body;
   if (!username || !email || !password)
     return res.status(400).json({ message: "Missing required fields." });
 
@@ -18,8 +18,8 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await pool.query(
-      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
-      [username, email, hashedPassword]
+      'INSERT INTO users (username, email, password, type) VALUES ($1, $2, $3, $4) RETURNING *',
+      [username, email, hashedPassword, type]
     );
 
     res.status(201).json({ message: "User registered successfully", user: newUser.rows[0] });
