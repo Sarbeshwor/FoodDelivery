@@ -12,9 +12,13 @@ app.use(cors({
 }));
 app.use(express.json()); 
 
-// Routes
+// Import your routers
 const authRouter = require("./routes/auth");
+const foodItemsRouter = require("./routes/foodItems");
+
+// Mount routers
 app.use("/api/auth", authRouter);
+app.use("/api/food-items", foodItemsRouter);  
 
 // Start server
 app.listen(port, () => {
