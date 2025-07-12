@@ -1,120 +1,30 @@
-.list-container {
-  max-width: 900px;
-  margin: 20px auto;
-  padding: 0 20px;
-  font-family: Arial, sans-serif;
-  color: #333;
+.list-table-format{
+    display: grid;
+    grid-template-columns: 0.5fr 2fr 1fr 1fr 0.5fr;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    border: 1px solid #e0e0e0;
+    font-size: 13px;
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 25px;
-  color: #2c3e50;
+.list-table-format.title{
+    background-color: aliceblue;
 }
 
-.food-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 280px min width per item */
-  grid-auto-rows: auto;
-  gap: 20px; /* space between items */
-  padding: 10px;
+.imgs{
+    width: 50px;
+    
 }
 
+@media (max-width: 680px) {
+    .list-table-format{
+        grid-template-columns: 0.5fr 1.5fr 1fr 1fr 0.5fr;
+        gap: 15px;
+    }
+    .list-table-format.title{
+        display: none;
+    }
 
-.food-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
-  background-color: #fff;
-  display: flex;
-  flex-direction: column;
-  transition: box-shadow 0.3s ease;
-}
-
-.food-card:hover {
-  box-shadow: 0 6px 12px rgb(0 0 0 / 0.2);
 }
 
-.food-image {
-  width: 100%;
-  height: 160px;
-  object-fit: cover;
-  border-bottom: 1px solid #eee;
-}
-
-.food-info {
-  padding: 15px;
-  flex-grow: 1;
-}
-
-.food-info h3 {
-  margin: 0 0 8px 0;
-  color: #27ae60;
-}
-
-.category {
-  font-weight: 600;
-  color: #2980b9;
-  margin-bottom: 10px;
-}
-
-.description {
-  color: #555;
-  font-size: 0.9rem;
-  margin-bottom: 12px;
-}
-
-.price {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #e74c3c;
-}
-.food-card {
-  position: relative; /* needed for absolute positioning */
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
-  background-color: #fff;
-  display: flex;
-  flex-direction: column;
-  transition: box-shadow 0.3s ease;
-}
-
-.food-card:hover {
-  box-shadow: 0 6px 12px rgb(0 0 0 / 0.2);
-}
-
-.card-actions {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: flex;
-  gap: 8px;
-  z-index: 10;
-}
-
-.icon-btn {
-  background: rgba(255 255 255 / 0.85);
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  padding: 4px 6px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-  user-select: none;
-}
-
-.icon-btn:hover {
-  background: rgba(255 255 255 / 1);
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-}
-
-.edit-btn {
-  color: #2980b9; /* blue */
-}
-
-.delete-btn {
-  color: #e74c3c; /* red */
-}

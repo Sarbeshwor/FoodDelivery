@@ -34,10 +34,27 @@ const List = () => {
     // Add your edit logic here (e.g., open modal or navigate)
   };
 
-  const handleDelete = (id) => {
-    console.log("Delete clicked for id:", id);
-    // Add your delete logic here (e.g., confirmation and API call)
-  };
+ const handleDelete = async (id) => {
+  try {
+    const response = await fetch(`http://localhost:5000/api/food-items/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    
+    setFoodList((prevList) => prevList.filter((item) => item._id !== id));
+
+    console.log(`Item with id ${id} deleted successfully`);
+  } catch (err) {
+    console.error("Failed to delete item:", err);
+    alert("Failed to delete item. Please try again.");
+  }
+};
+
 
   if (loading) return <div className="loading">Loading food items...</div>;
   if (error) return <div className="error">Error: {error}</div>;
@@ -45,43 +62,33 @@ const List = () => {
   if (foodList.length === 0) return <div>No food items found.</div>;
 
   return (
-    <div className="list-container">
-      <h2>Food Items List</h2>
-      <div className="food-list">
-        {foodList.map((item) => (
-          <div className="food-card" key={item._id}>
-            <div className="card-actions">
-              <button
-                className="icon-btn edit-btn"
-                onClick={() => handleEdit(item._id)}
-                title="Edit"
-              >
-                ✏️
-              </button>
-              <button
-                className="icon-btn delete-btn"
-                onClick={() => handleDelete(item._id)}
-                title="Delete"
-              >
-                ❌
-              </button>
-            </div>
-            <img
-              src={item.image}
-              alt={item.name}
-              className="food-image"
-              loading="lazy"
-            />
-            <div className="food-info">
-              <h3>{item.name}</h3>
-              <p className="category">{item.category}</p>
-              <p className="description">{item.description}</p>
-              <p className="price">${item.price}</p>
-            </div>
-          </div>
-        ))}
+   <div className="list add flex-col">
+    <p>Your Items</p>
+    <div className="list-table">
+      <div className="list-table-format title">
+       
+        <b>Image</b>
+        <b>Name</b>
+        <b>Category</b>
+        <b>Price</b>
+        <b>Action</b>
       </div>
+      {foodList.map((item,index)=>{
+        return(
+          <div key = {index} className="list-table-format">
+              <img className="imgs" src={item.image} alt="" />
+              <p>{item.name}</p>
+              <p>{item.category}</p>
+              <p>BDT {item.price}</p>
+              <p className="cursor"
+              onClick={()=>handleDelete(item._id)} 
+              title="Delete Item">X</p>
+          </div>
+        )
+      })}
     </div>
+   </div>
+  
   );
 };
 

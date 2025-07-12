@@ -32,3 +32,12 @@ hr {
   flex-direction: column;
   gap: 10px;
 }
+
+.cursor {
+  cursor: pointer;
+}
+
+.page-content {
+  width: 100%;
+  padding: 20px;
+}
