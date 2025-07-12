@@ -65,7 +65,7 @@
 
 .active-filters {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: wrap; 
     gap: 10px;
     margin-bottom: 20px;
     margin-top: 10px;

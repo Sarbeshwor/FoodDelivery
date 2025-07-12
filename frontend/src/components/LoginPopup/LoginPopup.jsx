@@ -62,6 +62,7 @@ const LoginPopup = ({ setShowLogin }) => {
           setIsLoggedIn(true);
           setShowLogin(false);
           setUser(data.user);
+          localStorage.setItem("user", JSON.stringify(data.user));
         } else {
           toast.error("Failed to login");
         }
@@ -70,6 +71,8 @@ const LoginPopup = ({ setShowLogin }) => {
       }
     }
   };
+   
+
 
   return (
     <div className="login-popup">

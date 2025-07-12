@@ -12,6 +12,10 @@ const UserDetail = ({ setShowUserDetail }) => {
     setShowUserDetail(false);
     toast.success("Logged out successfully!");
   };
+  localStorage.removeItem("user");
+setUser(null);
+setIsLoggedIn(false);
+
 
   return (
     <div className="userdetail">
