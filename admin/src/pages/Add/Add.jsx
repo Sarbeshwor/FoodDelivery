@@ -1,33 +1,44 @@
-import React, { useState, useEffect } from 'react'
-import './Add.css'
-import { assets } from '../../assets/assets'
+import React, { useState } from 'react';
+import './Add.css';
+import { assets } from '../../assets/assets';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const Add = () => {
+  const url = 'http://localhost:5000';
 
-  const url = 'http://localhost:4000';
   const [image, setImage] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [data, setData] = useState({
     name: '',
     description: '',
     price: '',
-    category: 'burger'
+    category: ''
   });
 
+  // Handle input changes
   const onChangeHandler = (event) => {
-    const name = event.target.name;
-    const value = event.target.value;
-    setData(data => ({
-      ...data,
+    const { name, value } = event.target;
+    setData((prev) => ({
+      ...prev,
       [name]: value
     }));
   };
 
+  // Handle submit
   const onSubmitHandler = async (event) => {
     event.preventDefault();
 
-    if (!image) return toast.error("Please upload an image");
+    if (!image) {
+      toast.error('Please upload an image');
+      return;
+    }
+
+    if (!data.name || !data.price || !data.category) {
+      toast.error('Please fill all required fields');
+      return;
+    }
 
     const formData = new FormData();
     formData.append('image', image);
@@ -37,68 +48,124 @@ const Add = () => {
     formData.append('category', data.category);
 
     try {
-      const response = await axios.post(`${url}/api/food/add`, formData);
+      setLoading(true);
+
+      const response = await axios.post(`${url}/api/food-items/add`, formData);
+
       if (response.data.success) {
+        toast.success(response.data.message);
+        // Reset form
         setData({
           name: '',
           description: '',
           price: '',
-          category: 'burger'
+          category: ''
         });
         setImage(false);
-        toast.success(response.data.message);
       } else {
         toast.error(response.data.message);
       }
+
     } catch (error) {
       console.error(error);
-      toast.error(response.data.message || "Something went wrong");
+      toast.error(error.response?.data?.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
     }
-  }
-
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
+  };
 
   return (
-    <div>
-      <div className="add">
-        <form className="flex-col" onSubmit={onSubmitHandler}>
-          <div className='add-img-upload flex-col'>
-            <p>Upload Image</p>
-            <label htmlFor="image">
-              <img src={image ? URL.createObjectURL(image) : assets.upload_area} alt="" />
-            </label>
-            <input onChange={(e) => setImage(e.target.files[0])} type="file" id="image" hidden required />
+    <div className="add">
+      <form className="flex-col" onSubmit={onSubmitHandler}>
+        
+        {/* Image Upload */}
+        <div className="add-img-upload flex-col">
+          <p>Upload Image</p>
+          <label htmlFor="image">
+            <img 
+              src={image ? URL.createObjectURL(image) : assets.upload_area}
+              alt="Upload Preview"
+            />
+          </label>
+          <input
+            type="file"
+            id="image"
+            accept="image/*"
+            hidden
+            onChange={(e) => setImage(e.target.files[0])}
+            required
+          />
+        </div>
+
+        {/* Product Name */}
+        <div className="add-product-name flex-col">
+          <p>Product Name</p>
+          <input
+            type="text"
+            name="name"
+            placeholder="Type Here"
+            value={data.name}
+            onChange={onChangeHandler}
+            required
+          />
+        </div>
+
+        {/* Product Description */}
+        <div className="add-product-description flex-col">
+          <p>Product Description</p>
+          <textarea
+            name="description"
+            rows="6"
+            placeholder="Write Content Here"
+            value={data.description}
+            onChange={onChangeHandler}
+          ></textarea>
+        </div>
+
+        {/* Category & Price */}
+        <div className="add-category-price flex-col">
+
+          {/* Category Dropdown */}
+          <div className="add-category flex-col">
+            <p>Category</p>
+            <select
+              name="category"
+              value={data.category}
+              onChange={onChangeHandler}
+              required
+            >
+              <option value="" disabled>Select category</option>
+              <option value="burger">Burger</option>
+              <option value="pizza">Pizza</option>
+              <option value="salad">Salad</option>
+              <option value="drink">Drink</option>
+              <option value="dessert">Dessert</option>
+            </select>
           </div>
-          <div className="add-product-name flex-col"> 
-            <p>Product Name</p>
-            <input onChange={onChangeHandler} value={data.name} type="text" name='name' placeholder='Type Here'/>
+
+          {/* Product Price */}
+          <div className="add-price flex-col">
+            <p>Product Price</p>
+            <input
+              type="number"
+              name="price"
+              placeholder="BDT20"
+              value={data.price}
+              onChange={onChangeHandler}
+              required
+              min="0"
+              step="0.01"
+            />
           </div>
-          <div className="add-product-description flex-col">
-            <p>Product Description</p>
-            <textarea onChange={onChangeHandler} value={data.description} name='description' rows="6" placeholder='Write Content Here'></textarea>
-          </div>
-          <div className="add-category-price flex-col">
-            <div className="add-category flex-col">
-              <select onChange={onChangeHandler} name="category" id="category" value={data.category}>
-                <option value="burger">Burger</option>
-                <option value="pizza">Pizza</option>
-                <option value="salad">Salad</option>
-                <option value="drink">Drink</option>
-                <option value="dessert">Dessert</option>
-              </select>
-            </div>
-            <div className="add-price flex-col">
-              <p>Product Price</p>
-              <input onChange={onChangeHandler} value={data.price} type="number" name='price' placeholder='BDT20' />
-            </div>
-          </div>
-          <button type='submit' className='add-product-btn'>ADD</button>
-        </form> 
-      </div> 
+        </div>
+
+        {/* Submit Button */}
+        <button type="submit" className="add-product-btn" disabled={loading}>
+          {loading ? 'Adding...' : 'ADD'}
+        </button>
+      </form>
     </div>
-  )
-}
+  );
+};
 
 export default Add;
