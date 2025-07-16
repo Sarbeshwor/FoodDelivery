@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 
 const LoginPopup = ({ setShowLogin }) => {
   const [currState, setCurrState] = useState("Login");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { setUser } = useContext(StoreContext);
 
   const [isKitchenOwner, setIsKitchenOwner] = useState(false);
@@ -21,7 +20,6 @@ const LoginPopup = ({ setShowLogin }) => {
     if (currState === "Sign Up") {
       try {
         const type = isKitchenOwner ? "kitchen" : "standard";
-        console.log("Sending type:", type);
 
         const res = await fetch("http://localhost:5000/api/auth/register", {
           method: "POST",
@@ -59,20 +57,17 @@ const LoginPopup = ({ setShowLogin }) => {
         const data = await res.json();
         if (res.ok) {
           toast.success(`Welcome back, ${data.user.username}!`);
-          setIsLoggedIn(true);
-          setShowLogin(false);
-          setUser(data.user);
-          localStorage.setItem("user", JSON.stringify(data.user));
+          setUser(data.user); // ✅ Save to context
+          localStorage.setItem("user", JSON.stringify(data.user)); // ✅ Persist
+          setShowLogin(false); // ✅ Close popup
         } else {
-          toast.error("Failed to login");
+          toast.error(data.message || "Failed to login");
         }
       } catch (err) {
-        toast.error("Network Issue");
+        toast.error("Network error");
       }
     }
   };
-   
-
 
   return (
     <div className="login-popup">
@@ -87,48 +82,22 @@ const LoginPopup = ({ setShowLogin }) => {
         </div>
 
         <div className="login-popup-inputs">
-          {currState === "Login" ? null : (
+          {currState === "Sign Up" && (
             <input type="text" name="name" placeholder="Your Name" required />
           )}
           <input type="email" name="email" placeholder="Your Email" required />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            required
-          />
+          <input type="password" name="password" placeholder="Password" required />
         </div>
 
-        <button disabled={isLoggedIn}>
-          {isLoggedIn
-            ? "Signed In"
-            : currState === "Sign Up"
-            ? "Create Account"
-            : "Login"}
-        </button>
-
         {currState === "Sign Up" && (
-          <div
-            className="kitchen-owner-checkbox"
-            style={{
-              margin: "10px 0",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
+          <div className="kitchen-owner-checkbox">
             <input
               type="checkbox"
               id="kitchenOwner"
               checked={isKitchenOwner}
-              onChange={() => {
-                setIsKitchenOwner(!isKitchenOwner);
-                console.log("Kitchen owner checked:", !isKitchenOwner);
-              }}
+              onChange={() => setIsKitchenOwner(!isKitchenOwner)}
             />
-            <label htmlFor="kitchenOwner">
-              Sign up as kitchen owner (not compulsory)
-            </label>
+            <label htmlFor="kitchenOwner">Sign up as kitchen owner</label>
           </div>
         )}
 
@@ -136,6 +105,10 @@ const LoginPopup = ({ setShowLogin }) => {
           <input type="checkbox" required />
           <p>By continuing, I agree to the terms of use & privacy policy.</p>
         </div>
+
+        <button type="submit">
+          {currState === "Sign Up" ? "Create Account" : "Login"}
+        </button>
 
         {currState === "Login" ? (
           <p>

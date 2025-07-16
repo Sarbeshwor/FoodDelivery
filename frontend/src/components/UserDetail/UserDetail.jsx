@@ -5,28 +5,36 @@ import { StoreContext } from "../../context/StoreContext";
 import { toast } from "react-toastify";
 
 const UserDetail = ({ setShowUserDetail }) => {
-  const { user, setUser } = useContext(StoreContext);
+  const context = useContext(StoreContext);
+
+  if (!context) {
+    return <div>Error: StoreContext not found. Make sure you wrapped your app with StoreContextProvider.</div>;
+  }
+
+  const { user, logout } = context;
 
   const handleLogout = () => {
-    setUser(null);
+    logout();
     setShowUserDetail(false);
     toast.success("Logged out successfully!");
   };
-  localStorage.removeItem("user");
-setUser(null);
-setIsLoggedIn(false);
-
 
   return (
     <div className="userdetail">
       <div className="userdetail-container">
         <div className="userdetail_header">
           <h2>{user ? `Welcome, ${user.username}` : "User Details"}</h2>
-          <img onClick={()=>setShowUserDetail(false)} src={assets.cross_icon} alt="close"/>
+          <img
+            onClick={() => setShowUserDetail(false)}
+            src={assets.cross_icon}
+            alt="close"
+          />
         </div>
+
         <div className="profile_view">
           <button className="profile_button">View Profile</button>
         </div>
+
         <div className="logout">
           <button className="logout_button" onClick={handleLogout}>
             Logout
