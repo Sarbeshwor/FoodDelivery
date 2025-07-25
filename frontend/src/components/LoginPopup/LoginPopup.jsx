@@ -19,7 +19,8 @@ const LoginPopup = ({ setShowLogin }) => {
 
     if (currState === "Sign Up") {
       try {
-        const type = isKitchenOwner ? "kitchen" : "standard";
+        // Assign role name matching your backend roles table
+        const type = isKitchenOwner ? "kitchen" : "normal";
 
         const res = await fetch("http://localhost:5000/api/auth/register", {
           method: "POST",
@@ -28,7 +29,7 @@ const LoginPopup = ({ setShowLogin }) => {
             username: name,
             email,
             password,
-            type,
+            type, // backend expects 'type' key
           }),
         });
 
@@ -57,9 +58,9 @@ const LoginPopup = ({ setShowLogin }) => {
         const data = await res.json();
         if (res.ok) {
           toast.success(`Welcome back, ${data.user.username}!`);
-          setUser(data.user); // ✅ Save to context
-          localStorage.setItem("user", JSON.stringify(data.user)); // ✅ Persist
-          setShowLogin(false); // ✅ Close popup
+          setUser(data.user); // includes roles array if backend sends it
+          localStorage.setItem("user", JSON.stringify(data.user)); // persist user with roles
+          setShowLogin(false); // close popup
         } else {
           toast.error(data.message || "Failed to login");
         }

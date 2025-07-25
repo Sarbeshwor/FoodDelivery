@@ -11,7 +11,9 @@ const header = () => {
         </h2>
       </div>
       <div className="buttons">
+        
         <button>View Menu</button>
+        
       </div>
     </div>
   )

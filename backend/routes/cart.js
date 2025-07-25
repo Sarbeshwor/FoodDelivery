@@ -1,127 +1,75 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const pool = require("../db"); // assumes you setup pg pool in db.js
+const pool = require('../db');
 
-// Add item to cart or increase quantity
-router.post("/add", async (req, res) => {
-  const { userId, foodItemId } = req.body;
-  if (!userId || !foodItemId) {
-    return res.status(400).json({ error: "Missing userId or foodItemId" });
-  }
+router.get('/:userId', async (req, res) => {
+  const userId = parseInt(req.params.userId);
 
   try {
-    // Find or create cart for user
-    let cartResult = await pool.query(
-      "SELECT cart_id FROM carts WHERE user_id = $1",
-      [userId]
-    );
+    const cartItems = await pool.query(
+  `SELECT ci.cart_item_id, ci.food_item_id, ci.quantity,
+          fi.name, fi.price, fi.image, fi.description
+   FROM cart_items ci
+   JOIN food_items fi ON ci.food_item_id = fi._id
+   WHERE ci.user_id = $1`,
+  [userId]
+);
 
-    let cartId;
-    if (cartResult.rows.length === 0) {
-      // create cart
-      const insertCart = await pool.query(
-        "INSERT INTO carts(user_id) VALUES ($1) RETURNING cart_id",
-        [userId]
-      );
-      cartId = insertCart.rows[0].cart_id;
-    } else {
-      cartId = cartResult.rows[0].cart_id;
-    }
 
-    // Insert or update quantity in cart_items
-    await pool.query(
-      `INSERT INTO cart_items(cart_id, food_item_id, quantity)
-       VALUES ($1, $2, 1)
-       ON CONFLICT (cart_id, food_item_id)
-       DO UPDATE SET quantity = cart_items.quantity + 1`,
-      [cartId, foodItemId]
-    );
-
-    res.json({ message: "Added to cart" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    res.json(cartItems.rows);
+  } catch (error) {
+    console.error("Error fetching cart items:", error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Remove one quantity or remove item entirely
-router.post("/remove", async (req, res) => {
-  const { userId, foodItemId } = req.body;
-  if (!userId || !foodItemId) {
-    return res.status(400).json({ error: "Missing userId or foodItemId" });
+
+
+// ✅ POST: add or update a cart item
+router.post('/add', async (req, res) => {
+  const { user_id, food_item_id, quantity } = req.body;
+
+  if (!user_id || !food_item_id || quantity == null) {
+    return res.status(400).json({ message: 'Missing fields' });
   }
 
   try {
-    // Get cart_id
-    const cartResult = await pool.query(
-      "SELECT cart_id FROM carts WHERE user_id = $1",
-      [userId]
-    );
-    if (cartResult.rows.length === 0) {
-      return res.status(400).json({ error: "Cart not found" });
-    }
-    const cartId = cartResult.rows[0].cart_id;
-
-    // Get current quantity
-    const itemResult = await pool.query(
-      `SELECT quantity FROM cart_items WHERE cart_id = $1 AND food_item_id = $2`,
-      [cartId, foodItemId]
+    const existing = await pool.query(
+      'SELECT * FROM cart_items WHERE user_id = $1 AND food_item_id = $2',
+      [user_id, food_item_id]
     );
 
-    if (itemResult.rows.length === 0) {
-      return res.status(400).json({ error: "Item not in cart" });
-    }
-
-    const currentQty = itemResult.rows[0].quantity;
-
-    if (currentQty <= 1) {
-      // Delete the item
+    if (existing.rows.length > 0) {
       await pool.query(
-        `DELETE FROM cart_items WHERE cart_id = $1 AND food_item_id = $2`,
-        [cartId, foodItemId]
+        'UPDATE cart_items SET quantity = $1 WHERE user_id = $2 AND food_item_id = $3',
+        [quantity, user_id, food_item_id]
       );
     } else {
-      // Decrement quantity by 1
       await pool.query(
-        `UPDATE cart_items SET quantity = quantity - 1 WHERE cart_id = $1 AND food_item_id = $2`,
-        [cartId, foodItemId]
+        'INSERT INTO cart_items (user_id, food_item_id, quantity, added_at) VALUES ($1, $2, $3, NOW())',
+        [user_id, food_item_id, quantity]
       );
     }
 
-    res.json({ message: "Removed from cart" });
+    res.json({ success: true });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    console.error('Error adding/updating cart item:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Get current cart items for user
-router.get("/:userId", async (req, res) => {
-  const userId = req.params.userId;
+// ✅ DELETE: remove item from cart
+// backend/routes/cart.js
+router.delete('/delete/:cart_item_id', async (req, res) => {
+  const { cart_item_id } = req.params;
   try {
-    const cartResult = await pool.query(
-      `SELECT c.cart_id FROM carts c WHERE c.user_id = $1`,
-      [userId]
-    );
-    if (cartResult.rows.length === 0) {
-      return res.json({ cartItems: [] });
-    }
-    const cartId = cartResult.rows[0].cart_id;
-
-    // Join cart_items with food_items to get full info
-    const itemsResult = await pool.query(
-      `SELECT fi._id, fi.name, fi.price, fi.description, fi.image, ci.quantity
-       FROM cart_items ci
-       JOIN food_items fi ON ci.food_item_id = fi._id
-       WHERE ci.cart_id = $1`,
-      [cartId]
-    );
-
-    res.json({ cartItems: itemsResult.rows });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    await pool.query('DELETE FROM cart WHERE cart_item_id = $1', [cart_item_id]);
+    res.status(200).json({ message: 'Item removed from cart' });
+  } catch (error) {
+    console.error('Error removing from cart:', error);
+    res.status(500).json({ error: 'Failed to remove item from cart' });
   }
 });
+
 
 module.exports = router;

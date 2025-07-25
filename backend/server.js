@@ -18,13 +18,15 @@ const authRouter = require("./routes/auth");
 const foodItemsRouter = require('./routes/foodItems');
 const cartRouter = require("./routes/cart");
 
-
+const foodRouter = require('./routes/food');
 
 
 // Mount routers
 app.use("/api/auth", authRouter);
 app.use("/api/cart", cartRouter);
-app.use("/api/food-items", foodItemsRouter);  
+app.use("/api/food-items", foodItemsRouter); 
+app.use('/api/food', foodRouter);
+ 
 // app.use('/api/food', foodItemsRouter);
 
 
