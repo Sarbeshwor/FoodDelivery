@@ -3,9 +3,10 @@
 }
 
 .orders-title {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  color: #333;
 }
 
 .orders-table {
@@ -16,15 +17,17 @@
 
 .orders-table-format {
   display: grid;
-  grid-template-columns: 80px 1fr 1fr 1fr 100px;
+  grid-template-columns: 80px 1fr 1fr 1fr 100px 120px;
   align-items: center;
   gap: 10px;
-  padding: 10px;
+  padding: 12px;
   border-bottom: 1px solid #ddd;
+  font-size: 16px;
 }
 
 .orders-table-format.title {
   font-weight: bold;
+  background-color: #f8f8f8;
   border-bottom: 2px solid #000;
 }
 
@@ -35,17 +38,62 @@
   border-radius: 5px;
 }
 
+.status {
+  text-transform: capitalize;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-align: center;
+  width: fit-content;
+}
+
+.status.pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.status.accepted {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status.cancelled {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
 .action-icons {
   display: flex;
-  gap: 10px;
-  font-size: 20px;
+  gap: 12px;
+  font-size: 22px;
+  align-items: center;
   cursor: pointer;
 }
 
-.accept-icon {
-  color: green;
+.accept-icon,
+.cancel-icon {
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
-.cancel-icon {
-  color: red;
+.accept-icon:hover {
+  color: #28a745;
+  transform: scale(1.2);
+}
+
+.cancel-icon:hover {
+  color: #dc3545;
+  transform: scale(1.2);
+}
+
+.static-icon {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.info-text {
+  font-size: 14px;
+  color: #555;
 }

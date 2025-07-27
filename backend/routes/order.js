@@ -13,7 +13,6 @@ router.post('/place', async (req, res) => {
   try {
     for (const item of items) {
       const { food_item_id, quantity } = item;
-
       if (quantity <= 0) continue;
 
       const kitchenRes = await pool.query(
@@ -24,9 +23,9 @@ router.post('/place', async (req, res) => {
       const kitchen_id = kitchenRes.rows[0]?.kitchen_id;
 
       await pool.query(
-        `INSERT INTO order_items (user_id, food_item_id, kitchen_id, quantity)
-         VALUES ($1, $2, $3, $4)`,
-        [user_id, food_item_id, kitchen_id, quantity]
+        `INSERT INTO order_items (user_id, food_item_id, kitchen_id, quantity, status)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [user_id, food_item_id, kitchen_id, quantity, 'pending']
       );
     }
 
@@ -42,6 +41,10 @@ router.post('/place', async (req, res) => {
 // GET /api/orders?kitchenId=...
 router.get('/', async (req, res) => {
   const { kitchenId } = req.query;
+
+  if (!kitchenId) {
+    return res.status(400).json({ success: false, message: 'kitchenId is required' });
+  }
 
   try {
     const query = `
@@ -72,15 +75,49 @@ router.put('/:id/status', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
+  const validStatuses = [
+    'pending',
+    'accepted',
+    'ready_for_pickup',
+    'delivered',
+    'cancelled'
+  ];
+
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ success: false, message: 'Invalid status' });
+  }
+
   try {
-    const result = await pool.query(
-      `UPDATE order_items SET status = $1 WHERE order_item_id = $2 RETURNING *`,
-      [status, id]
+    const existingOrder = await pool.query(
+      'SELECT status FROM order_items WHERE order_item_id = $1',
+      [id]
     );
 
-    if (result.rowCount === 0) {
+    if (existingOrder.rowCount === 0) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
+
+    const currentStatus = existingOrder.rows[0].status;
+
+    // Optional: Define allowed transitions
+    const allowedTransitions = {
+      pending: ['accepted', 'cancelled'],
+      accepted: ['ready_for_pickup', 'cancelled'],
+      ready_for_pickup: ['delivered'],
+    };
+
+    if (
+      currentStatus !== status &&
+      allowedTransitions[currentStatus] &&
+      !allowedTransitions[currentStatus].includes(status)
+    ) {
+      return res.status(400).json({ success: false, message: `Invalid status transition from ${currentStatus} to ${status}` });
+    }
+
+    const result = await pool.query(
+      `UPDATE order_items SET status = $1, ordered_at = NOW() WHERE order_item_id = $2 RETURNING *`,
+      [status, id]
+    );
 
     res.json({ success: true, message: 'Order status updated', order: result.rows[0] });
   } catch (err) {

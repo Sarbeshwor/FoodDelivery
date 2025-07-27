@@ -28,25 +28,50 @@ const Orders = () => {
     fetchOrders();
   }, []);
 
-  const handleAccept = async (id) => {
-    try {
-      await axios.put(`http://localhost:5000/api/order/${id}/status`, {
-        status: 'accepted',
-      });
-      fetchOrders(); // Refresh after update
-    } catch (err) {
-      console.error('Error accepting order:', err);
-    }
-  };
-
   const handleCancel = async (id) => {
     try {
       await axios.put(`http://localhost:5000/api/order/${id}/status`, {
         status: 'cancelled',
       });
-      fetchOrders(); // Refresh after update
+      fetchOrders();
     } catch (err) {
       console.error('Error cancelling order:', err);
+    }
+  };
+
+  const handleNextStatus = async (order) => {
+    let nextStatus = '';
+
+    switch (order.status) {
+      case 'pending':
+        nextStatus = 'accepted';
+        break;
+      case 'accepted':
+        nextStatus = 'ready_for_pickup';
+        break;
+      case 'ready_for_pickup':
+        nextStatus = 'delivered';
+        break;
+      default:
+        return;
+    }
+
+    try {
+      await axios.put(`http://localhost:5000/api/order/${order.order_item_id}/status`, {
+        status: nextStatus,
+      });
+      fetchOrders();
+    } catch (err) {
+      console.error(`Error updating status to ${nextStatus}:`, err);
+    }
+  };
+
+  const getNextStatusLabel = (status) => {
+    switch (status) {
+      case 'pending': return 'Accept';
+      case 'accepted': return 'Ready for Pickup';
+      case 'ready_for_pickup': return 'Deliver';
+      default: return '';
     }
   };
 
@@ -69,23 +94,25 @@ const Orders = () => {
             <p>{order.item_name}</p>
             <p>{order.customer_name}</p>
             <p>{order.quantity}</p>
-            <p className={`status ${order.status}`}>{order.status}</p>
+            <p className={`status ${order.status}`}>{order.status.replace(/_/g, ' ')}</p>
+
             <div className="action-icons">
-              {order.status === 'pending' ? (
-                <>
-                  <FaCheckCircle
-                    className="accept-icon"
-                    title="Accept Order"
-                    onClick={() => handleAccept(order.order_item_id)}
-                  />
-                  <FaTimesCircle
-                    className="cancel-icon"
-                    title="Cancel Order"
-                    onClick={() => handleCancel(order.order_item_id)}
-                  />
-                </>
+              {order.status !== 'cancelled' && order.status !== 'delivered' ? (
+                <FaCheckCircle
+                  className="accept-icon"
+                  title={getNextStatusLabel(order.status)}
+                  onClick={() => handleNextStatus(order)}
+                />
               ) : (
-                <span>—</span>
+                <span className="info-text">—</span>
+              )}
+
+              {order.status === 'pending' && (
+                <FaTimesCircle
+                  className="cancel-icon"
+                  title="Cancel Order"
+                  onClick={() => handleCancel(order.order_item_id)}
+                />
               )}
             </div>
           </div>
