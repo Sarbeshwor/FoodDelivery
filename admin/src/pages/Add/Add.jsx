@@ -17,7 +17,6 @@ const Add = () => {
     category: ''
   });
 
-  // Handle input changes
   const onChangeHandler = (event) => {
     const { name, value } = event.target;
     setData((prev) => ({
@@ -26,7 +25,6 @@ const Add = () => {
     }));
   };
 
-  // Handle submit
   const onSubmitHandler = async (event) => {
     event.preventDefault();
 
@@ -40,12 +38,22 @@ const Add = () => {
       return;
     }
 
+    // ✅ Get user and kitchenId from localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    const kitchenId = user?.kitchenId;
+
+    if (!kitchenId) {
+      toast.error('Kitchen ID missing. Please re-login.');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('image', image);
     formData.append('name', data.name);
     formData.append('description', data.description);
     formData.append('price', data.price);
     formData.append('category', data.category);
+    formData.append('kitchenId', kitchenId); // ✅ Send correct kitchenId
 
     try {
       setLoading(true);
@@ -54,7 +62,6 @@ const Add = () => {
 
       if (response.data.success) {
         toast.success(response.data.message);
-        // Reset form
         setData({
           name: '',
           description: '',

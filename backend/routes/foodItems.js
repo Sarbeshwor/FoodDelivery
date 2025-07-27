@@ -20,9 +20,13 @@ router.post('/add', upload.single('image'), async (req, res) => {
     const cloudResult = await cloudinary.uploader.upload(req.file.path);
     const imageUrl = cloudResult.secure_url;
 
-    // 2️⃣ Get other form data
-    const { name, description, price, category } = req.body;
-    const kitchen_id = 1; // Hardcoded for now
+    // 2️⃣ Get other form data including kitchenId
+    const { name, description, price, category, kitchenId } = req.body;
+    const kitchen_id = kitchenId;  // Use kitchenId sent from frontend
+
+    if (!kitchen_id) {
+      return res.status(400).json({ success: false, message: 'kitchenId is required' });
+    }
 
     // 3️⃣ Insert into food_items table
     const insertQuery = `
@@ -51,19 +55,31 @@ router.post('/add', upload.single('image'), async (req, res) => {
   }
 });
 
+
 /**
  * GET /api/food/
  * Get all food items
  */
 router.get('/', async (req, res) => {
+  const kitchenId = req.query.kitchenId;
+
   try {
-    const result = await pool.query('SELECT * FROM food_items ORDER BY _id DESC');
+    let query = 'SELECT * FROM food_items';
+    let params = [];
+
+    if (kitchenId) {
+      query += ' WHERE kitchen_id = $1';
+      params.push(kitchenId);
+    }
+
+    const result = await pool.query(query, params);
     res.json(result.rows);
-  } catch (error) {
-    console.error('Error fetching food items:', error);
+  } catch (err) {
+    console.error('Error fetching food items:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 /**
  * DELETE /api/food/:id

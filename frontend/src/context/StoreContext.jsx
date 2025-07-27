@@ -30,83 +30,116 @@ const StoreContextProvider = ({ children }) => {
   }, []);
 
   // Fetch user's cart items from backend whenever user changes (login/logout)
-  useEffect(() => {
-    if (user) {
-      fetch(`http://localhost:5000/api/cart/${user.id}`)
-        .then(res => {
-          if (!res.ok) throw new Error("Failed to fetch cart");
-          return res.json();
-        })
-        .then(cartData => {
-          const cartObj = {};
-          cartData.forEach(item => {
-            cartObj[item.food_item_id] = item.quantity;
-          });
-          setCartItems(cartObj);
-        })
-        .catch(err => {
-          console.error("Failed to load cart from server:", err);
-          setCartItems({});
-        });
-    } else {
+useEffect(() => {
+  let intervalId;
+
+  const fetchCart = async () => {
+    if (!user) return;
+    try {
+      const res = await fetch(`http://localhost:5000/api/cart/${user.id}`);
+      if (!res.ok) throw new Error("Failed to fetch cart");
+      const cartData = await res.json();
+      const cartObj = {};
+      cartData.forEach(item => {
+        cartObj[item.food_item_id] = item.quantity;
+      });
+      setCartItems(cartObj);
+    } catch (err) {
+      console.error("Failed to load cart from server:", err);
       setCartItems({});
     }
-  }, [user]);
+  };
+
+  if (user) {
+    fetchCart(); // initial load
+    intervalId = setInterval(fetchCart, 1000); // 🕒 refresh every second
+  } else {
+    setCartItems({});
+  }
+
+  return () => {
+    if (intervalId) clearInterval(intervalId); // cleanup on logout/unmount
+  };
+}, [user]);
+
+
+  const refreshCartFromServer = async () => {
+  if (!user) return;
+  try {
+    const res = await fetch(`http://localhost:5000/api/cart/${user.id}`);
+    if (!res.ok) throw new Error("Failed to fetch cart");
+    const cartData = await res.json();
+    const cartObj = {};
+    cartData.forEach(item => {
+      cartObj[item.food_item_id] = item.quantity;
+    });
+    setCartItems(cartObj);
+  } catch (err) {
+    console.error("Error refreshing cart from server:", err);
+    setCartItems({});
+  }
+};
+
+
 
   // Add or increase item quantity in cart and update backend
   const addToCart = async (itemId) => {
-    const newQuantity = (cartItems[itemId] || 0) + 1;
-    setCartItems(prev => ({ ...prev, [itemId]: newQuantity }));
+  const newQuantity = (cartItems[itemId] || 0) + 1;
+  setCartItems(prev => ({ ...prev, [itemId]: newQuantity }));
 
-    if (!user) return; // optionally handle guest users
+  if (!user) return;
 
-    try {
-      const res = await fetch("http://localhost:5000/api/cart/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: user.id,
-          food_item_id: itemId,
-          quantity: newQuantity,
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to update cart on server");
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  try {
+    const res = await fetch("http://localhost:5000/api/cart/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: user.id,
+        food_item_id: itemId,
+        quantity: newQuantity,
+      }),
+    });
+    if (!res.ok) throw new Error("Failed to update cart on server");
+    await refreshCartFromServer(); 
+  } catch (err) {
+    console.error(err);
+  }
+};
 
-  // Remove or decrease item quantity in cart and update backend
+
   const removeFromCart = async (itemId) => {
-    const currentQty = cartItems[itemId] || 0;
-    if (currentQty <= 0) return;
+  const currentQty = cartItems[itemId] || 0;
+  if (currentQty <= 0) return;
 
-    const newQuantity = currentQty - 1;
-    if (newQuantity <= 0) {
-      const newCart = { ...cartItems };
-      delete newCart[itemId];
-      setCartItems(newCart);
-    } else {
-      setCartItems(prev => ({ ...prev, [itemId]: newQuantity }));
-    }
+  const newQuantity = currentQty - 1;
 
-    if (!user) return;
+  if (newQuantity <= 0) {
+    const newCart = { ...cartItems };
+    delete newCart[itemId];
+    setCartItems(newCart);
+  } else {
+    setCartItems(prev => ({ ...prev, [itemId]: newQuantity }));
+  }
 
-    try {
-      const res = await fetch("http://localhost:5000/api/cart/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: user.id,
-          food_item_id: itemId,
-          quantity: Math.max(newQuantity, 0),
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to update cart on server");
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  if (!user) return;
+
+  try {
+    const res = await fetch("http://localhost:5000/api/cart/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: user.id,
+        food_item_id: itemId,
+        quantity: Math.max(newQuantity, 0),
+      }),
+    });
+    if (!res.ok) throw new Error("Failed to update cart on server");
+    await refreshCartFromServer(); // 🧠 Sync with backend
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 
   // Calculate total cart amount using foodList prices and quantities
   const getTotalCartAmount = () => {
@@ -135,6 +168,7 @@ const StoreContextProvider = ({ children }) => {
         cartItems,
         addToCart,
         removeFromCart,
+        setCartItems,
         foodList,
         setFoodList,
         getTotalCartAmount,

@@ -19,7 +19,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
     if (currState === "Sign Up") {
       try {
-        // Assign role name matching your backend roles table
+        
         const type = isKitchenOwner ? "kitchen" : "normal";
 
         const res = await fetch("http://localhost:5000/api/auth/register", {
@@ -57,12 +57,32 @@ const LoginPopup = ({ setShowLogin }) => {
 
         const data = await res.json();
         if (res.ok) {
+          const roles = data.user.roles;
+
+          const userToStore = {
+            id: data.user.id,
+            username: data.user.username,
+            email: data.user.email,
+            roles,
+          };
+
+         
+
           toast.success(`Welcome back, ${data.user.username}!`);
-          setUser(data.user); // includes roles array if backend sends it
-          localStorage.setItem("user", JSON.stringify(data.user)); // persist user with roles
-          setShowLogin(false); // close popup
-        } else {
-          toast.error(data.message || "Failed to login");
+         
+         
+          setShowLogin(false);
+
+          // Redirect
+          if (roles.includes("admin") || roles.includes("kitchen")) {
+             userToStore.kitchenId = data.user.kitchenId;
+             localStorage.setItem("user", JSON.stringify(userToStore));
+            window.location.href = "http://localhost:5174/list"; // admin/kitchen portal
+          } else {
+            setUser(userToStore);
+            localStorage.setItem("user", JSON.stringify(userToStore));
+            window.location.reload(); // stay in frontend
+          }
         }
       } catch (err) {
         toast.error("Network error");
@@ -87,7 +107,12 @@ const LoginPopup = ({ setShowLogin }) => {
             <input type="text" name="name" placeholder="Your Name" required />
           )}
           <input type="email" name="email" placeholder="Your Email" required />
-          <input type="password" name="password" placeholder="Password" required />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            required
+          />
         </div>
 
         {currState === "Sign Up" && (

@@ -40,15 +40,24 @@ router.post('/add', async (req, res) => {
     );
 
     if (existing.rows.length > 0) {
-      await pool.query(
-        'UPDATE cart_items SET quantity = $1 WHERE user_id = $2 AND food_item_id = $3',
-        [quantity, user_id, food_item_id]
-      );
+      if (quantity === 0) {
+        await pool.query(
+          'DELETE FROM cart_items WHERE user_id = $1 AND food_item_id = $2',
+          [user_id, food_item_id]
+        );
+      } else {
+        await pool.query(
+          'UPDATE cart_items SET quantity = $1 WHERE user_id = $2 AND food_item_id = $3',
+          [quantity, user_id, food_item_id]
+        );
+      }
     } else {
-      await pool.query(
-        'INSERT INTO cart_items (user_id, food_item_id, quantity, added_at) VALUES ($1, $2, $3, NOW())',
-        [user_id, food_item_id, quantity]
-      );
+      if (quantity > 0) {
+        await pool.query(
+          'INSERT INTO cart_items (user_id, food_item_id, quantity, added_at) VALUES ($1, $2, $3, NOW())',
+          [user_id, food_item_id, quantity]
+        );
+      }
     }
 
     res.json({ success: true });
@@ -58,18 +67,19 @@ router.post('/add', async (req, res) => {
   }
 });
 
+
 // ✅ DELETE: remove item from cart
-// backend/routes/cart.js
 router.delete('/delete/:cart_item_id', async (req, res) => {
   const { cart_item_id } = req.params;
   try {
-    await pool.query('DELETE FROM cart WHERE cart_item_id = $1', [cart_item_id]);
+    await pool.query('DELETE FROM cart_items WHERE cart_item_id = $1', [cart_item_id]);
     res.status(200).json({ message: 'Item removed from cart' });
   } catch (error) {
     console.error('Error removing from cart:', error);
     res.status(500).json({ error: 'Failed to remove item from cart' });
   }
 });
+
 
 
 module.exports = router;
