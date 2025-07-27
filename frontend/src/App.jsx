@@ -9,7 +9,7 @@ import LoginPopup from './components/LoginPopup/LoginPopup';
 import UserDetail from './components/UserDetail/UserDetail';
 import Footer from './components/Footer/Footer';
 import { ToastContainer } from 'react-toastify';
-import { StoreProvider } from './components/StoreContext/StoreContext';
+import StoreContextProvider  from './context/StoreContext'; 
 
 // ✅ Import your StoreProvider
 // import { StoreProvider } from './components/StoreContext/StoreContext';
@@ -19,7 +19,7 @@ const App = () => {
   const [showUserDetail, setShowUserDetail] = useState(false);
 
   return (
-    <StoreProvider>
+    <StoreContextProvider>
       {showLogin && (
         <LoginPopup
           setShowLogin={setShowLogin}
@@ -44,7 +44,7 @@ const App = () => {
         <Footer />
       </div>
       <ToastContainer />
-      </StoreProvider>
+      </StoreContextProvider>
     
   );
 };

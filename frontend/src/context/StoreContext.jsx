@@ -1,51 +1,181 @@
-import { createContext, useEffect, useState } from "react";
-import { food_list } from "../assets/assets";
+import React, { createContext, useState, useEffect } from "react";
 
-export const StoreContext = createContext(null);
+export const StoreContext = createContext();
 
-const StoreContextProvider = (props) => {
-  const [cartItems, setCartItems] = useState({});
+const StoreContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [cartItems, setCartItems] = useState({}); // { food_item_id: quantity }
+  const [foodList, setFoodList] = useState([]);   // food items fetched from backend
 
-  const addToCart = (itemId) => {
-    if (!cartItems[itemId]) {
-      setCartItems((prev) => ({ ...prev, [itemId]: 1 }));
-    } else {
-      setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
+  // Load user from localStorage once on mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+  }, []);
+
+  // Persist user changes to localStorage
+  useEffect(() => {
+    if (user) localStorage.setItem("user", JSON.stringify(user));
+    else localStorage.removeItem("user");
+  }, [user]);
+
+  // Fetch all food items from backend once on mount
+  useEffect(() => {
+    fetch("http://localhost:5000/api/food")
+      .then(res => res.json())
+      .then(data => setFoodList(data))
+      .catch(err => {
+        console.error("Failed to load food list:", err);
+      });
+  }, []);
+
+  // Fetch user's cart items from backend whenever user changes (login/logout)
+useEffect(() => {
+  let intervalId;
+
+  const fetchCart = async () => {
+    if (!user) return;
+    try {
+      const res = await fetch(`http://localhost:5000/api/cart/${user.id}`);
+      if (!res.ok) throw new Error("Failed to fetch cart");
+      const cartData = await res.json();
+      const cartObj = {};
+      cartData.forEach(item => {
+        cartObj[item.food_item_id] = item.quantity;
+      });
+      setCartItems(cartObj);
+    } catch (err) {
+      console.error("Failed to load cart from server:", err);
+      setCartItems({});
     }
   };
 
-  const removeFromCart = (itemId) => {
-    setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
-  };
+  if (user) {
+    fetchCart(); // initial load
+    intervalId = setInterval(fetchCart, 1000); // 🕒 refresh every second
+  } else {
+    setCartItems({});
+  }
 
+  return () => {
+    if (intervalId) clearInterval(intervalId); // cleanup on logout/unmount
+  };
+}, [user]);
+
+
+  const refreshCartFromServer = async () => {
+  if (!user) return;
+  try {
+    const res = await fetch(`http://localhost:5000/api/cart/${user.id}`);
+    if (!res.ok) throw new Error("Failed to fetch cart");
+    const cartData = await res.json();
+    const cartObj = {};
+    cartData.forEach(item => {
+      cartObj[item.food_item_id] = item.quantity;
+    });
+    setCartItems(cartObj);
+  } catch (err) {
+    console.error("Error refreshing cart from server:", err);
+    setCartItems({});
+  }
+};
+
+
+
+  // Add or increase item quantity in cart and update backend
+  const addToCart = async (itemId) => {
+  const newQuantity = (cartItems[itemId] || 0) + 1;
+  setCartItems(prev => ({ ...prev, [itemId]: newQuantity }));
+
+  if (!user) return;
+
+  try {
+    const res = await fetch("http://localhost:5000/api/cart/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: user.id,
+        food_item_id: itemId,
+        quantity: newQuantity,
+      }),
+    });
+    if (!res.ok) throw new Error("Failed to update cart on server");
+    await refreshCartFromServer(); 
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
+  const removeFromCart = async (itemId) => {
+  const currentQty = cartItems[itemId] || 0;
+  if (currentQty <= 0) return;
+
+  const newQuantity = currentQty - 1;
+
+  if (newQuantity <= 0) {
+    const newCart = { ...cartItems };
+    delete newCart[itemId];
+    setCartItems(newCart);
+  } else {
+    setCartItems(prev => ({ ...prev, [itemId]: newQuantity }));
+  }
+
+  if (!user) return;
+
+  try {
+    const res = await fetch("http://localhost:5000/api/cart/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: user.id,
+        food_item_id: itemId,
+        quantity: Math.max(newQuantity, 0),
+      }),
+    });
+    if (!res.ok) throw new Error("Failed to update cart on server");
+    await refreshCartFromServer(); // 🧠 Sync with backend
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
+  // Calculate total cart amount using foodList prices and quantities
   const getTotalCartAmount = () => {
-    let totalAmount = 0;
-    for (const item in cartItems) {
-      if (cartItems[item] > 0) {
-        let itemInfo = food_list.find((product) => product._id === item);
-        totalAmount += itemInfo.price * cartItems[item];
+    let total = 0;
+    for (const id in cartItems) {
+      if (cartItems[id] > 0) {
+        const item = foodList.find(f => String(f._id) === String(id));
+        if (item) total += item.price * cartItems[id];
       }
     }
-    return totalAmount;
+    return total;
   };
 
-  useEffect(() => {}), [cartItems];
-
-  const contextValue = {
-    food_list,
-    addToCart,
-    removeFromCart,
-    cartItems,
-    setCartItems,
-    getTotalCartAmount,
-    user,
-    setUser,
+  // Logout user and clear cart locally
+  const logout = () => {
+    setUser(null);
+    setCartItems({});
+    localStorage.removeItem("user");
   };
 
   return (
-    <StoreContext.Provider value={contextValue}>
-      {props.children}
+    <StoreContext.Provider
+      value={{
+        user,
+        setUser,
+        cartItems,
+        addToCart,
+        removeFromCart,
+        setCartItems,
+        foodList,
+        setFoodList,
+        getTotalCartAmount,
+        logout,
+      }}
+    >
+      {children}
     </StoreContext.Provider>
   );
 };

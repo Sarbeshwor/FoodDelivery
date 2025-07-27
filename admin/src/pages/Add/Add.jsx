@@ -10,9 +10,9 @@ const Add = () => {
   const [image, setImage] = useState(false);
   const [data, setData] = useState({
     name: "",
-    description: "",
-    price: "",
-    category: "burger"
+    description: '',
+    price: '',
+    category: 'burger'
   });
 
   const onChangeHandler = (event) => {
@@ -20,8 +20,9 @@ const Add = () => {
     const value = event.target.value;
     setData(data => ({
       ...data,
-      [name]: value}))
-  }
+      [name]: value
+    }));
+  };
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
