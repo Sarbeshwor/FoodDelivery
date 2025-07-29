@@ -1,22 +1,24 @@
-import React from 'react';
-import './Navbar.css';
-import logo from '../../assets/logo.png';
+import React from "react";
+import "./Navbar.css";
+import { assets } from "../../assets/assets";
 
-function Navbar({ showLinks }) {
+const Navbar = ({ user, onLogout }) => {
   return (
-    <nav className="navbar">
-      <img src={logo} alt="Food Delivery Logo" className="navbar-logo-img" />
-      {showLinks && (
-        <ul className="navbar-menu">
-          <li>Status</li>
-          <li>Deliveries</li>
-          <li>Map</li>
-          <li>History</li>
-          <li>Wallet</li>
-        </ul>
-      )}
-    </nav>
+    <div className="navbar">
+      <img className="logo" src={assets.logo} alt="" />
+      <div className="navbar-right">
+        {user && (
+          <div className="user-info">
+            <span>Welcome, {user.username}</span>
+            <button onClick={onLogout} className="logout-btn">
+              Logout
+            </button>
+          </div>
+        )}
+        <img className="profile" src={assets.profile_image} alt="" />
+      </div>
+    </div>
   );
-}
+};
 
-export default Navbar; 
+export default Navbar;

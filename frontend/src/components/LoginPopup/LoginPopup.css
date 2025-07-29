@@ -80,3 +80,14 @@
     font-weight: 500;
     cursor: pointer;
 }
+.user-type-select {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.user-type-select select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #c9c9c9;
+}

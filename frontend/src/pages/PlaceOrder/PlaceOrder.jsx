@@ -1,11 +1,62 @@
-import React, { useContext, useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './PlaceOrder.css';
 import { StoreContext } from '../../context/StoreContext';
 import { toast } from 'react-toastify';
 
 const PlaceOrder = () => {
-  const { user, cartItems, foodList, getTotalCartAmount, setCartItems } = useContext(StoreContext);
+  const { cartItems, getTotalCartAmount, setCartItems } = useContext(StoreContext);
   const [loading, setLoading] = useState(false);
+
+  // Get user info from localStorage
+  const storedUser = localStorage.getItem('user');
+  const user = storedUser ? JSON.parse(storedUser) : null;
+
+  const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    street: '',
+    city: '',
+    landmark: '',
+    postal_code: '',
+    country: '',
+    phone: '',
+  });
+
+  // Load delivery info only once on mount or when user.id changes
+  useEffect(() => {
+    if (!user?.id) return;
+
+    async function fetchDeliveryInfo() {
+      try {
+        const res = await fetch(`http://localhost:5000/api/delivery/user/${user.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setFormData(data);
+        } else if (res.status === 404) {
+          setFormData({
+            first_name: '',
+            last_name: '',
+            email: '',
+            street: '',
+            city: '',
+            landmark: '',
+            postal_code: '',
+            country: '',
+            phone: '',
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch delivery info:', err);
+      }
+    }
+
+    fetchDeliveryInfo();
+  }, [user?.id]); // Only re-run if user.id changes
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,10 +66,12 @@ const PlaceOrder = () => {
       return;
     }
 
-    const items = Object.entries(cartItems).map(([food_item_id, quantity]) => ({
-      food_item_id: Number(food_item_id),
-      quantity,
-    })).filter(item => item.quantity > 0);
+    const items = Object.entries(cartItems)
+      .map(([food_item_id, quantity]) => ({
+        food_item_id: Number(food_item_id),
+        quantity,
+      }))
+      .filter(item => item.quantity > 0);
 
     if (items.length === 0) {
       toast.error('Your cart is empty!');
@@ -28,6 +81,14 @@ const PlaceOrder = () => {
     setLoading(true);
 
     try {
+      // Save delivery info with userid from localStorage
+      await fetch('http://localhost:5000/api/delivery/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, userid: user.id }),
+      });
+
+      // Place the order
       const res = await fetch('http://localhost:5000/api/order/place', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -39,16 +100,13 @@ const PlaceOrder = () => {
 
       if (!res.ok) {
         const data = await res.json();
-      toast.error(data.message || 'Failed to place order');
+        toast.error(data.message || 'Failed to place order');
         setLoading(false);
         return;
       }
 
       toast.success('Order placed successfully!');
-      setCartItems({}); // clear cart locally
-
-      // Optional: redirect or reset form here
-
+      setCartItems({}); // clear cart
     } catch (error) {
       toast.error('Error placing order: ' + error.message);
     } finally {
@@ -59,23 +117,83 @@ const PlaceOrder = () => {
   return (
     <form className="place-order" onSubmit={handleSubmit}>
       <div className="place-order-left">
-        {/* Delivery info inputs */}
         <p className="title">Delivery Information</p>
         <div className="multi-fields">
-          <input type="text" placeholder='First Name' required />
-          <input type="text" placeholder='Last Name' required />
+          <input
+            type="text"
+            name="first_name"
+            placeholder="First Name"
+            required
+            value={formData.first_name}
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            name="last_name"
+            placeholder="Last Name"
+            required
+            value={formData.last_name}
+            onChange={handleChange}
+          />
         </div>
-        <input type="email" placeholder='Email Address' required />
-        <input type="text" placeholder='Street' required />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email Address"
+          required
+          value={formData.email}
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="street"
+          placeholder="Street"
+          required
+          value={formData.street}
+          onChange={handleChange}
+        />
         <div className="multi-fields">
-          <input type="text" placeholder='City' required />
-          <input type="text" placeholder='Thana' required />
+          <input
+            type="text"
+            name="city"
+            placeholder="City"
+            required
+            value={formData.city}
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            name="landmark"
+            placeholder="Landmark"
+            value={formData.landmark}
+            onChange={handleChange}
+          />
         </div>
         <div className="multi-fields">
-          <input type="text" placeholder='Post Code' required />
-          <input type="text" placeholder='Country' required />
+          <input
+            type="text"
+            name="postal_code"
+            placeholder="Post Code"
+            value={formData.postal_code}
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            name="country"
+            placeholder="Country"
+            required
+            value={formData.country}
+            onChange={handleChange}
+          />
         </div>
-        <input type="tel" placeholder='Phone' required />
+        <input
+          type="tel"
+          name="phone"
+          placeholder="Phone"
+          required
+          value={formData.phone}
+          onChange={handleChange}
+        />
       </div>
 
       <div className="place-order-right">
@@ -94,7 +212,7 @@ const PlaceOrder = () => {
             <hr />
             <div className="cart-total-details">
               <b>Total</b>
-              <b>BDT {getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 2}</b>
+              <b>{getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 2}</b>
             </div>
             <hr />
           </div>

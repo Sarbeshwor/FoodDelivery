@@ -23,19 +23,20 @@ app.use("/api/auth", authRouter);
 app.use("/api/food-items", foodItemsRouter);  
 app.use("/api/delivery-application", deliveryApplicationRouter);
 
-const foodItemsRouter = require('./routes/foodItems');
+// const foodItemsRouter = require('./routes/foodItems');
 const cartRouter = require("./routes/cart");
-
+const deliveryRoutes = require('./routes/delivery');
 const foodRouter = require('./routes/food');
 const orderRoutes = require('./routes/order');
 
 
 // Mount routers
-app.use("/api/auth", authRouter);
+
 app.use("/api/cart", cartRouter);
-app.use("/api/food-items", foodItemsRouter); 
+
 app.use('/api/food', foodRouter);
 app.use('/api/order', orderRoutes);
+app.use('/api/delivery', deliveryRoutes);
  
 // app.use('/api/food', foodItemsRouter);
 

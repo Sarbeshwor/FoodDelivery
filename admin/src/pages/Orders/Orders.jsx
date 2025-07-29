@@ -49,9 +49,6 @@ const Orders = () => {
       case 'accepted':
         nextStatus = 'ready_for_pickup';
         break;
-      case 'ready_for_pickup':
-        nextStatus = 'delivered';
-        break;
       default:
         return;
     }
@@ -68,10 +65,12 @@ const Orders = () => {
 
   const getNextStatusLabel = (status) => {
     switch (status) {
-      case 'pending': return 'Accept';
-      case 'accepted': return 'Ready for Pickup';
-      case 'ready_for_pickup': return 'Deliver';
-      default: return '';
+      case 'pending':
+        return 'Accept';
+      case 'accepted':
+        return 'Ready for Pickup';
+      default:
+        return '';
     }
   };
 
@@ -97,7 +96,8 @@ const Orders = () => {
             <p className={`status ${order.status}`}>{order.status.replace(/_/g, ' ')}</p>
 
             <div className="action-icons">
-              {order.status !== 'cancelled' && order.status !== 'delivered' ? (
+              {/* ✅ Show tick only for pending or accepted */}
+              {['pending', 'accepted'].includes(order.status) ? (
                 <FaCheckCircle
                   className="accept-icon"
                   title={getNextStatusLabel(order.status)}
@@ -107,6 +107,7 @@ const Orders = () => {
                 <span className="info-text">—</span>
               )}
 
+              {}
               {order.status === 'pending' && (
                 <FaTimesCircle
                   className="cancel-icon"

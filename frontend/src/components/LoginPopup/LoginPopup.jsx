@@ -8,7 +8,7 @@ const LoginPopup = ({ setShowLogin }) => {
   const [currState, setCurrState] = useState("Login");
   const { setUser } = useContext(StoreContext);
 
-  const [isKitchenOwner, setIsKitchenOwner] = useState(false);
+  const [userType, setUserType] = useState("normal");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,8 +19,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
     if (currState === "Sign Up") {
       try {
-        
-        const type = isKitchenOwner ? "kitchen" : "normal";
+        const type = userType;
 
         const res = await fetch("http://localhost:5000/api/auth/register", {
           method: "POST",
@@ -37,7 +36,7 @@ const LoginPopup = ({ setShowLogin }) => {
         if (res.ok) {
           toast.success("Account created successfully!");
           setCurrState("Login");
-          setIsKitchenOwner(false);
+          setUserType("normal");
         } else {
           toast.error(data.message || "Signup failed");
         }
@@ -45,49 +44,52 @@ const LoginPopup = ({ setShowLogin }) => {
         toast.error("Network error: " + err.message);
       }
     } else if (currState === "Login") {
-      try {
-        const res = await fetch("http://localhost:5000/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        });
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
 
-        const data = await res.json();
-        if (res.ok) {
-          const roles = data.user.roles;
+    const data = await res.json();
+    if (res.ok) {
+      const roles = data.user.roles;
 
-          const userToStore = {
-            id: data.user.id,
-            username: data.user.username,
-            email: data.user.email,
-            roles,
-          };
+      const userToStore = {
+        id: data.user.id,
+        username: data.user.username,
+        email: data.user.email,
+        roles, // Should be something like ["delivery"]
+      };
 
-         
-
-          toast.success(`Welcome back, ${data.user.username}!`);
-         
-         
-          setShowLogin(false);
-
-          // Redirect
-          if (roles.includes("admin") || roles.includes("kitchen")) {
-             userToStore.kitchenId = data.user.kitchenId;
-             localStorage.setItem("user", JSON.stringify(userToStore));
-            window.location.href = "http://localhost:5174/list"; // admin/kitchen portal
-          } else {
-            setUser(userToStore);
-            localStorage.setItem("user", JSON.stringify(userToStore));
-            window.location.reload(); // stay in frontend
-          }
-        }
-      } catch (err) {
-        toast.error("Network error");
+      if (roles.includes("kitchen")) {
+        userToStore.kitchenId = data.user.kitchenId;
       }
+
+      localStorage.setItem("user", JSON.stringify(userToStore));
+      setShowLogin(false);
+
+      toast.success(`Welcome back, ${data.user.username}!`);
+
+      if (roles.includes("kitchen") || roles.includes("admin")) {
+        window.location.href = "http://localhost:5174/list";
+      } else if (roles.includes("delivery")) {
+        window.location.href = "http://localhost:5175/"; 
+      } else {
+        setUser(userToStore);
+        window.location.reload();
+      }
+    } else {
+      toast.error(data.message || "Login failed");
     }
+  } catch (err) {
+    toast.error("Network error");
+  }
+}
+
   };
 
   return (
@@ -101,7 +103,6 @@ const LoginPopup = ({ setShowLogin }) => {
             alt="close"
           />
         </div>
-
         <div className="login-popup-inputs">
           {currState === "Sign Up" && (
             <input type="text" name="name" placeholder="Your Name" required />
@@ -114,16 +115,19 @@ const LoginPopup = ({ setShowLogin }) => {
             required
           />
         </div>
-
         {currState === "Sign Up" && (
-          <div className="kitchen-owner-checkbox">
-            <input
-              type="checkbox"
-              id="kitchenOwner"
-              checked={isKitchenOwner}
-              onChange={() => setIsKitchenOwner(!isKitchenOwner)}
-            />
-            <label htmlFor="kitchenOwner">Sign up as kitchen owner</label>
+          <div className="user-type-select">
+            <label htmlFor="userType">Select account type:</label>
+            <select
+              id="userType"
+              value={userType}
+              onChange={(e) => setUserType(e.target.value)}
+              required
+            >
+              <option value="normal">Normal User</option>
+              <option value="kitchen">Kitchen Owner</option>
+              <option value="delivery">Delivery Partner</option>
+            </select>
           </div>
         )}
 
@@ -131,11 +135,9 @@ const LoginPopup = ({ setShowLogin }) => {
           <input type="checkbox" required />
           <p>By continuing, I agree to the terms of use & privacy policy.</p>
         </div>
-
         <button type="submit">
           {currState === "Sign Up" ? "Create Account" : "Login"}
         </button>
-
         {currState === "Login" ? (
           <p>
             Create a new account?{" "}
