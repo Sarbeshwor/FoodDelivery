@@ -12,38 +12,6 @@
     cursor: pointer;
 }
 
-.navbar-right {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.user-info span {
-    font-weight: 500;
-    color: #333;
-}
-
-.logout-btn {
-    padding: 0.5rem 1rem;
-    background-color: #ff6b47;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.3s;
-}
-
-.logout-btn:hover {
-    background-color: #e55a41;
-}
-
 .navbar .profile {
     width: 60px;
     border-radius: 50%;
@@ -58,14 +26,6 @@
 
     .navbar .logo {
         width: 100px;
-    }
-
-    .navbar-right {
-        gap: 0.5rem;
-    }
-
-    .user-info span {
-        display: none;
     }
 
     .navbar .profile {

@@ -28,7 +28,7 @@ const cartRouter = require("./routes/cart");
 const deliveryRoutes = require('./routes/delivery');
 const foodRouter = require('./routes/food');
 const orderRoutes = require('./routes/order');
-
+const deliveringfood = require('./routes/deliveries');
 
 // Mount routers
 
@@ -37,7 +37,8 @@ app.use("/api/cart", cartRouter);
 app.use('/api/food', foodRouter);
 app.use('/api/order', orderRoutes);
 app.use('/api/delivery', deliveryRoutes);
- 
+app.use('/api/deliveries', deliveringfood);
+
 // app.use('/api/food', foodItemsRouter);
 
 // Start server
