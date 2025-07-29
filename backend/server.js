@@ -29,7 +29,9 @@ const deliveryRoutes = require('./routes/delivery');
 const foodRouter = require('./routes/food');
 const orderRoutes = require('./routes/order');
 const deliveringfood = require('./routes/deliveries');
-
+const userRoutes = require('./routes/user');
+const kitchensRouter = require('./routes/kitchens');
+const couponsRouter = require('./routes/coupons');
 // Mount routers
 
 app.use("/api/cart", cartRouter);
@@ -38,6 +40,9 @@ app.use('/api/food', foodRouter);
 app.use('/api/order', orderRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/deliveries', deliveringfood);
+app.use('/api/user', userRoutes);
+app.use('/api/kitchens', kitchensRouter);
+app.use('/api/coupons', couponsRouter);
 
 // app.use('/api/food', foodItemsRouter);
 

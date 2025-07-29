@@ -1,45 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import "./FoodDisplay.css";
 import FoodItem from "../FoodItem/FoodItem";
 import { assets, menu_list } from "../../assets/assets";
+import { StoreContext } from "../../context/StoreContext";
 
-const FoodDisplay = () => {
-  // Local state for food items
-  const [foodList, setFoodList] = useState([]);
+const FoodDisplay = ({ category }) => {
+  // Get food list from context instead of local state
+  const { foodList } = useContext(StoreContext);
 
   // Local state for filter UI
   const [showFilter, setShowFilter] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
 
-  // Fetch food items from backend API on component mount
-  useEffect(() => {
-    const fetchFoodItems = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/food-items");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log("Fetched food items:", data);
-        setFoodList(data);
-      } catch (error) {
-        console.error("Failed to fetch food items:", error);
-      }
-    };
-
-    fetchFoodItems();
-  }, []);
-
   // Handle category checkbox toggle
   const handleCategoryChange = (menu_name) => {
     if (selectedCategories.includes(menu_name)) {
-      setSelectedCategories(selectedCategories.filter((cat) => cat !== menu_name));
+      setSelectedCategories(
+        selectedCategories.filter((cat) => cat !== menu_name)
+      );
     } else {
       setSelectedCategories([...selectedCategories, menu_name]);
     }
   };
 
   // Filtered food based on selected categories
+  // Note: foodList is already filtered by kitchen in the context
   const filteredFood =
     selectedCategories.length === 0
       ? foodList
@@ -48,7 +33,11 @@ const FoodDisplay = () => {
   return (
     <div className="food-display" id="food-display">
       <div className="food-display-header">
-        <h2>Trending dishes</h2>
+        <h2>
+          {category && category !== "All"
+            ? `Dishes from ${category}`
+            : "Trending dishes"}
+        </h2>
         <img
           src={assets.filter}
           alt="Filter"
@@ -81,7 +70,9 @@ const FoodDisplay = () => {
               <span
                 className="remove-tag"
                 onClick={() =>
-                  setSelectedCategories(selectedCategories.filter((cat) => cat !== category))
+                  setSelectedCategories(
+                    selectedCategories.filter((cat) => cat !== category)
+                  )
                 }
               >
                 &times;

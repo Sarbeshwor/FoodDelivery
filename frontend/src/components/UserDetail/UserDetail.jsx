@@ -43,6 +43,17 @@ const UserDetail = ({ setShowUserDetail }) => {
     phone: "",
   });
 
+  // New states for profile editing
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    username: "",
+    email: "",
+    phone: "",
+  });
+  const [profileImage, setProfileImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [updatingProfile, setUpdatingProfile] = useState(false);
+
   if (!context) {
     return (
       <div>
@@ -52,7 +63,102 @@ const UserDetail = ({ setShowUserDetail }) => {
     );
   }
 
-  const { user, logout } = context;
+  const { user, logout, updateUser } = context;
+
+  // Initialize profile form when user data is available
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        username: user.username || "",
+        email: user.email || "",
+        phone: user.phone || "",
+      });
+    }
+  }, [user]);
+
+  // Handle profile form input changes
+  const handleProfileChange = (e) => {
+    setProfileForm({
+      ...profileForm,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  // Handle profile image change
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(file);
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
+  // Handle profile form submission
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    setUpdatingProfile(true);
+
+    try {
+      const formData = new FormData();
+
+      // Add form fields
+      if (profileForm.username.trim()) {
+        formData.append("username", profileForm.username.trim());
+      }
+      if (profileForm.email.trim()) {
+        formData.append("email", profileForm.email.trim());
+      }
+      if (profileForm.phone.trim()) {
+        formData.append("phone", profileForm.phone.trim());
+      }
+
+      // Add image if selected
+      if (profileImage) {
+        formData.append("image", profileImage);
+      }
+
+      const response = await fetch(
+        `http://localhost:5000/api/user/${user.id}/profile`,
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update user context if updateUser function exists
+        if (updateUser) {
+          updateUser(data.user);
+        }
+
+        toast.success("Profile updated successfully!");
+        setIsEditingProfile(false);
+        setProfileImage(null);
+        setPreviewImage(null);
+      } else {
+        toast.error(data.message || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Error updating profile");
+    } finally {
+      setUpdatingProfile(false);
+    }
+  };
+
+  // Cancel profile editing
+  const cancelProfileEdit = () => {
+    setIsEditingProfile(false);
+    setProfileForm({
+      username: user?.username || "",
+      email: user?.email || "",
+      phone: user?.phone || "",
+    });
+    setProfileImage(null);
+    setPreviewImage(null);
+  };
 
   // Fetch user orders
   const fetchOrders = async () => {
@@ -254,7 +360,23 @@ const UserDetail = ({ setShowUserDetail }) => {
           <div className="header-content">
             <div className="user-avatar">
               <div className="avatar-circle">
-                {getUserInitials(user?.username)}
+                {user?.image_url ? (
+                  <img
+                    src={user.image_url}
+                    alt={user.username || "User"}
+                    className="avatar-image"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                      e.target.nextSibling.style.display = "flex";
+                    }}
+                  />
+                ) : null}
+                <div
+                  className="avatar-initials"
+                  style={{ display: user?.image_url ? "none" : "flex" }}
+                >
+                  {getUserInitials(user?.username)}
+                </div>
               </div>
               <div className="user-info">
                 <h2>{user ? user.username : "Guest User"}</h2>
@@ -304,39 +426,156 @@ const UserDetail = ({ setShowUserDetail }) => {
         <div className="userdetail-content">
           {activeTab === "profile" && (
             <div className="profile-tab">
-              <div className="profile-section">
-                <h3>Account Information</h3>
-                <div className="info-grid">
-                  <div className="info-item">
-                    <FaUser className="info-icon" />
-                    <div className="info-details">
-                      <label>Username</label>
-                      <span>{user?.username || "Not provided"}</span>
+              {!isEditingProfile ? (
+                <>
+                  <div className="profile-section">
+                    <h3>Account Information</h3>
+                    <div className="info-grid">
+                      <div className="info-item">
+                        <FaUser className="info-icon" />
+                        <div className="info-details">
+                          <label>Username</label>
+                          <span>{user?.username || "Not provided"}</span>
+                        </div>
+                      </div>
+                      <div className="info-item">
+                        <FaEnvelope className="info-icon" />
+                        <div className="info-details">
+                          <label>Email</label>
+                          <span>{user?.email || "Not provided"}</span>
+                        </div>
+                      </div>
+                      <div className="info-item">
+                        <FaUserTag className="info-icon" />
+                        <div className="info-details">
+                          <label>Account Type</label>
+                          <span>{formatRoles(user?.roles)}</span>
+                        </div>
+                      </div>
+                      {user?.phone && (
+                        <div className="info-item">
+                          <FaEnvelope className="info-icon" />
+                          <div className="info-details">
+                            <label>Phone</label>
+                            <span>{user.phone}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <div className="info-item">
-                    <FaEnvelope className="info-icon" />
-                    <div className="info-details">
-                      <label>Email</label>
-                      <span>{user?.email || "Not provided"}</span>
-                    </div>
-                  </div>
-                  <div className="info-item">
-                    <FaUserTag className="info-icon" />
-                    <div className="info-details">
-                      <label>Account Type</label>
-                      <span>{formatRoles(user?.roles)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              <div className="profile-actions">
-                <button className="edit-profile-btn">
-                  <FaEdit className="btn-icon" />
-                  Edit Profile
-                </button>
-              </div>
+                  <div className="profile-actions">
+                    <button
+                      className="edit-profile-btn"
+                      onClick={() => setIsEditingProfile(true)}
+                    >
+                      <FaEdit className="btn-icon" />
+                      Edit Profile
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="profile-edit-section">
+                  <h3>Edit Profile</h3>
+                  <form
+                    onSubmit={handleProfileSubmit}
+                    className="profile-edit-form"
+                  >
+                    <div className="profile-image-upload">
+                      <div className="image-preview">
+                        <div className="current-image">
+                          {previewImage ? (
+                            <img src={previewImage} alt="Preview" />
+                          ) : user?.image_url ? (
+                            <img src={user.image_url} alt="Current profile" />
+                          ) : (
+                            <div className="avatar-circle large">
+                              {getUserInitials(user?.username)}
+                            </div>
+                          )}
+                        </div>
+                        <label
+                          htmlFor="profile-image"
+                          className="image-upload-btn"
+                        >
+                          <FaEdit className="btn-icon" />
+                          Change Photo
+                        </label>
+                        <input
+                          type="file"
+                          id="profile-image"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          hidden
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-fields">
+                      <div className="form-group">
+                        <label>Username</label>
+                        <input
+                          type="text"
+                          name="username"
+                          value={profileForm.username}
+                          onChange={handleProfileChange}
+                          placeholder="Enter username"
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Email</label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={profileForm.email}
+                          onChange={handleProfileChange}
+                          placeholder="Enter email"
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Phone</label>
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={profileForm.phone}
+                          onChange={handleProfileChange}
+                          placeholder="Enter phone number"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-actions">
+                      <button
+                        type="submit"
+                        className="save-profile-btn"
+                        disabled={updatingProfile}
+                      >
+                        {updatingProfile ? (
+                          <>
+                            <FaSpinner className="btn-icon spinning" />
+                            Updating...
+                          </>
+                        ) : (
+                          <>
+                            <FaCheckCircle className="btn-icon" />
+                            Save Changes
+                          </>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        className="cancel-btn"
+                        onClick={cancelProfileEdit}
+                        disabled={updatingProfile}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
             </div>
           )}
 

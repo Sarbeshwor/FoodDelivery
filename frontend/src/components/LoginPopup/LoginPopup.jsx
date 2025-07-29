@@ -62,7 +62,9 @@ const LoginPopup = ({ setShowLogin }) => {
         id: data.user.id,
         username: data.user.username,
         email: data.user.email,
-        roles, // Should be something like ["delivery"]
+        roles, 
+        image_url: data.user.image_url || "https://res.cloudinary.com/dlouxq1cv/image/upload/v1753460852/eycervpqe0lsz9n5rc7d.png",
+
       };
 
       if (roles.includes("kitchen")) {

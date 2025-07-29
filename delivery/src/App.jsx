@@ -6,6 +6,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import Add from "./pages/Add/Add";
 import List from "./pages/List/List";
 import Deliveries from "./pages/Deliveries/Deliveries";
+import Revenue from "./pages/Revenue/Revenue";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -67,6 +68,7 @@ const App = () => {
             <Route path="/list" element={<List />} />
             <Route path="/deliveries" element={<Deliveries />} />
             <Route path="/orders" element={<Deliveries />} />
+            <Route path="/revenue" element={<Revenue />} />
             <Route path="*" element={<Navigate to="/list" />} />
           </Routes>
         </div>

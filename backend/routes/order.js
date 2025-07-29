@@ -6,7 +6,7 @@ const pool = require('../db');
 // POST /api/order/place
 // -----------------------------
 router.post('/place', async (req, res) => {
-  const { user_id, items } = req.body;
+  const { user_id, items, coupon, total_amount } = req.body;
 
   if (!user_id || !Array.isArray(items)) {
     return res.status(400).json({ message: 'Invalid request' });
@@ -24,16 +24,28 @@ router.post('/place', async (req, res) => {
 
       const kitchen_id = kitchenRes.rows[0]?.kitchen_id;
 
-      await pool.query(
-        `INSERT INTO order_items (user_id, food_item_id, kitchen_id, quantity, status)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [user_id, food_item_id, kitchen_id, quantity, 'pending']
-      );
+      // Include coupon information in the order
+      const insertQuery = coupon 
+        ? `INSERT INTO order_items (user_id, food_item_id, kitchen_id, quantity, status, coupon_code, discount_percent, discount_amount)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+        : `INSERT INTO order_items (user_id, food_item_id, kitchen_id, quantity, status)
+           VALUES ($1, $2, $3, $4, $5)`;
+
+      const values = coupon 
+        ? [user_id, food_item_id, kitchen_id, quantity, 'pending', coupon.coupon_code, coupon.discount_percent, coupon.discount_amount]
+        : [user_id, food_item_id, kitchen_id, quantity, 'pending'];
+
+      await pool.query(insertQuery, values);
     }
 
     await pool.query('DELETE FROM cart_items WHERE user_id = $1', [user_id]);
 
-    res.json({ success: true, message: 'Order placed successfully' });
+    res.json({ 
+      success: true, 
+      message: 'Order placed successfully',
+      coupon_applied: !!coupon,
+      total_amount: total_amount 
+    });
   } catch (error) {
     console.error('Order placement error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -162,6 +174,9 @@ router.get('/', async (req, res) => {
         o.quantity,
         o.status,
         o.ordered_at,
+        o.coupon_code,
+        o.discount_percent,
+        o.discount_amount,
         u.username AS customer_name,
         f.name AS item_name,
         f.image
@@ -398,6 +413,9 @@ router.get('/user-orders/:user_id', async (req, res) => {
         oi.quantity,
         oi.status,
         oi.ordered_at,
+        oi.coupon_code,
+        oi.discount_percent,
+        oi.discount_amount,
         fi.name AS item_name,
         fi.image,
         fi.price,
@@ -554,6 +572,67 @@ router.post('/delivery-cancel/:order_item_id', async (req, res) => {
   } catch (err) {
     console.error('Error cancelling delivery:', err);
     res.status(500).json({ success: false, message: 'Server error cancelling delivery' });
+  }
+});
+
+// -----------------------------
+// GET /api/order/revenue?kitchenId=...&filter=...
+// -----------------------------
+router.get('/revenue', async (req, res) => {
+  const { kitchenId, filter } = req.query;
+
+  if (!kitchenId) {
+    return res.status(400).json({ success: false, message: 'kitchenId is required' });
+  }
+
+  try {
+    let dateFilter = '';
+    
+    // Add date filter based on the filter parameter
+    if (filter === 'today') {
+      dateFilter = `AND DATE(o.ordered_at) = CURRENT_DATE`;
+    } else if (filter === 'past24hrs') {
+      dateFilter = `AND o.ordered_at >= NOW() - INTERVAL '24 hours'`;
+    } else if (filter === 'thisMonth') {
+      dateFilter = `AND DATE_TRUNC('month', o.ordered_at) = DATE_TRUNC('month', CURRENT_DATE)`;
+    } else if (filter === 'pastMonth') {
+      dateFilter = `AND DATE_TRUNC('month', o.ordered_at) = DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')`;
+    } else if (filter === 'thisWeek') {
+      dateFilter = `AND DATE_TRUNC('week', o.ordered_at) = DATE_TRUNC('week', CURRENT_DATE)`;
+    }
+
+    const query = `
+      SELECT 
+        o.order_item_id,
+        o.quantity,
+        o.status,
+        o.ordered_at,
+        u.username AS customer_name,
+        f.name AS item_name,
+        f.image,
+        f.price,
+        (f.price * o.quantity) AS total_amount
+      FROM order_items o
+      JOIN users u ON o.user_id = u.userid
+      JOIN food_items f ON o.food_item_id = f._id
+      WHERE o.kitchen_id = $1 ${dateFilter}
+      ORDER BY o.ordered_at DESC
+    `;
+    const result = await pool.query(query, [kitchenId]);
+    
+    // Calculate total revenue for delivered orders
+    const totalRevenue = result.rows
+      .filter(order => order.status === 'delivered')
+      .reduce((sum, order) => sum + parseFloat(order.total_amount), 0);
+      
+    res.json({ 
+      success: true, 
+      orders: result.rows,
+      totalRevenue: totalRevenue 
+    });
+  } catch (err) {
+    console.error('Error fetching revenue data:', err);
+    res.status(500).json({ success: false, message: 'Server error fetching revenue data' });
   }
 });
 

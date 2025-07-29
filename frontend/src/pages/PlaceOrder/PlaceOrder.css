@@ -39,3 +39,14 @@
 .place-order .cart-total button{
     margin-top: 30px;
 }
+
+/* Keep only discount display styles for applied coupons */
+.discount-row {
+    color: #28a745 !important;
+    font-weight: 600;
+}
+
+.discount-amount {
+    color: #28a745 !important;
+    font-weight: 600;
+}
