@@ -19,6 +19,7 @@ import {
   FaSpinner,
   FaBan,
   FaTimesCircle,
+  FaStar,
 } from "react-icons/fa";
 
 const UserDetail = ({ setShowUserDetail }) => {
@@ -53,6 +54,13 @@ const UserDetail = ({ setShowUserDetail }) => {
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [updatingProfile, setUpdatingProfile] = useState(false);
+
+  // Rating states
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [currentRatingOrder, setCurrentRatingOrder] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [submittingRating, setSubmittingRating] = useState(false);
 
   if (!context) {
     return (
@@ -344,13 +352,97 @@ const UserDetail = ({ setShowUserDetail }) => {
 
   // Check if order can be cancelled
   const canCancelOrder = (status) => {
-    return [
-      "pending",
-      "accepted",
-      "ready_for_pickup",
-      "onitsway",
-      "delivered",
-    ].includes(status);
+    return ["pending", "accepted", "ready_for_pickup", "onitsway"].includes(
+      status
+    );
+  };
+
+  // Open rating modal
+  const openRatingModal = (order) => {
+    setCurrentRatingOrder(order);
+    setRating(order.rating || 0);
+    setHoverRating(0);
+    setShowRatingModal(true);
+  };
+
+  // Close rating modal
+  const closeRatingModal = () => {
+    setShowRatingModal(false);
+    setCurrentRatingOrder(null);
+    setRating(0);
+    setHoverRating(0);
+  };
+
+  // Submit rating
+  const submitRating = async () => {
+    if (!currentRatingOrder || rating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
+
+    setSubmittingRating(true);
+    try {
+      const response = await fetch("http://localhost:5000/api/order/rate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          order_item_id: currentRatingOrder.order_item_id,
+          user_id: user.id,
+          food_id: currentRatingOrder.food_item_id,
+          rating: rating,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Rating submitted successfully!");
+        closeRatingModal();
+        fetchOrders(); // Refresh orders to show updated rating
+      } else {
+        toast.error(data.message || "Failed to submit rating");
+      }
+    } catch (error) {
+      console.error("Error submitting rating:", error);
+      toast.error("Error submitting rating");
+    } finally {
+      setSubmittingRating(false);
+    }
+  };
+
+  // Check if order can be rated
+  const canRateOrder = (order) => {
+    return order.status === "delivered" && !order.rating;
+  };
+
+  // Render star rating component
+  const renderStarRating = (
+    currentRating,
+    isInteractive = false,
+    size = "normal"
+  ) => {
+    const stars = [];
+    const starCount = 5;
+
+    for (let i = 1; i <= starCount; i++) {
+      stars.push(
+        <FaStar
+          key={i}
+          className={`rating-star ${size} ${
+            i <= (isInteractive ? hoverRating || rating : currentRating)
+              ? "filled"
+              : "empty"
+          }`}
+          onClick={isInteractive ? () => setRating(i) : undefined}
+          onMouseEnter={isInteractive ? () => setHoverRating(i) : undefined}
+          onMouseLeave={isInteractive ? () => setHoverRating(0) : undefined}
+        />
+      );
+    }
+
+    return <div className="star-rating">{stars}</div>;
   };
 
   return (
@@ -643,6 +735,34 @@ const UserDetail = ({ setShowUserDetail }) => {
                               #{order.order_item_id}
                             </span>
                           </div>
+
+                          {/* Rating section for delivered orders */}
+                          {order.status === "delivered" && (
+                            <div className="order-rating">
+                              {order.rating ? (
+                                <div className="rating-display">
+                                  <span className="rating-label">
+                                    Your rating:
+                                  </span>
+                                  {renderStarRating(
+                                    order.rating,
+                                    false,
+                                    "small"
+                                  )}
+                                </div>
+                              ) : (
+                                <button
+                                  className="rate-order-btn"
+                                  onClick={() => openRatingModal(order)}
+                                  title="Rate this order"
+                                >
+                                  <FaStar className="btn-icon" />
+                                  Rate Order
+                                </button>
+                              )}
+                            </div>
+                          )}
+
                           {canCancelOrder(order.status) && (
                             <div className="order-actions">
                               <button
@@ -843,6 +963,86 @@ const UserDetail = ({ setShowUserDetail }) => {
           </button>
         </div>
       </div>
+
+      {/* Rating Modal */}
+      {showRatingModal && currentRatingOrder && (
+        <div className="rating-modal-overlay">
+          <div className="rating-modal">
+            <div className="rating-modal-header">
+              <h3>Rate Your Order</h3>
+              <button
+                className="modal-close-btn"
+                onClick={closeRatingModal}
+                aria-label="Close"
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="rating-modal-content">
+              <div className="order-item-info">
+                <img
+                  src={currentRatingOrder.image}
+                  alt={currentRatingOrder.item_name}
+                  className="modal-order-image"
+                  onError={(e) => {
+                    e.target.src = "/placeholder-food.png";
+                  }}
+                />
+                <div className="modal-order-details">
+                  <h4>{currentRatingOrder.item_name}</h4>
+                  <p>Quantity: {currentRatingOrder.quantity}</p>
+                  <p>Total: BDT {currentRatingOrder.total_amount}</p>
+                </div>
+              </div>
+
+              <div className="rating-section">
+                <p className="rating-instruction">
+                  How would you rate this order?
+                </p>
+                {renderStarRating(rating, true, "large")}
+                <div className="rating-labels">
+                  <span className="rating-text">
+                    {rating === 0 && "Select a rating"}
+                    {rating === 1 && "Poor"}
+                    {rating === 2 && "Fair"}
+                    {rating === 3 && "Good"}
+                    {rating === 4 && "Very Good"}
+                    {rating === 5 && "Excellent"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="rating-modal-actions">
+                <button
+                  className="submit-rating-btn"
+                  onClick={submitRating}
+                  disabled={rating === 0 || submittingRating}
+                >
+                  {submittingRating ? (
+                    <>
+                      <FaSpinner className="btn-icon spinning" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <FaStar className="btn-icon" />
+                      Submit Rating
+                    </>
+                  )}
+                </button>
+                <button
+                  className="cancel-rating-btn"
+                  onClick={closeRatingModal}
+                  disabled={submittingRating}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

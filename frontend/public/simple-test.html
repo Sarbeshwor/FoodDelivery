@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Rating Test</title>
+</head>
+<body>
+    <h1>Simple Rating Test</h1>
+    <button onclick="testRatings()">Test Ratings API</button>
+    <div id="results"></div>
+    
+    <script>
+        async function testRatings() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Testing...</p>';
+            
+            try {
+                // Test the three food items that have ratings
+                const testIds = [6, 7, 11];
+                let html = '<h3>API Test Results:</h3>';
+                
+                for (const id of testIds) {
+                    const response = await fetch(`http://localhost:5000/api/order/food-ratings/${id}`);
+                    const data = await response.json();
+                    html += `<p><strong>Food ID ${id}:</strong> ${data.average_rating} stars (${data.total_ratings} ratings)</p>`;
+                }
+                
+                resultsDiv.innerHTML = html;
+                
+                // Also test food list
+                const foodResponse = await fetch('http://localhost:5000/api/food');
+                const foodList = await foodResponse.json();
+                resultsDiv.innerHTML += `<h3>Food Items:</h3>`;
+                foodList.forEach(food => {
+                    resultsDiv.innerHTML += `<p>ID: ${food._id}, Name: ${food.name}</p>`;
+                });
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

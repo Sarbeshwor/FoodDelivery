@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rating API Test</title>
+</head>
+<body>
+    <h1>Testing Rating API</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testAPI() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>Testing ratings API...</p>';
+            
+            for (let id = 6; id <= 11; id++) {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/order/food-ratings/${id}`);
+                    const data = await response.json();
+                    results.innerHTML += `<p>Food ID ${id}: ${JSON.stringify(data)}</p>`;
+                } catch (error) {
+                    results.innerHTML += `<p>Food ID ${id}: ERROR - ${error.message}</p>`;
+                }
+            }
+        }
+        
+        // Test when page loads
+        testAPI();
+    </script>
+</body>
+</html>

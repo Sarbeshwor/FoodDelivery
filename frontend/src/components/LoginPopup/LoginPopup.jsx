@@ -77,9 +77,9 @@ const LoginPopup = ({ setShowLogin }) => {
       toast.success(`Welcome back, ${data.user.username}!`);
 
       if (roles.includes("kitchen") || roles.includes("admin")) {
-        window.location.href = "http://localhost:5174/list";
+        window.open("http://localhost:5174/list", "_blank");
       } else if (roles.includes("delivery")) {
-        window.location.href = "http://localhost:5175/"; 
+        window.open("http://localhost:5175/", "_blank");
       } else {
         setUser(userToStore);
         window.location.reload();

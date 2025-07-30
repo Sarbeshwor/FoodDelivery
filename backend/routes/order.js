@@ -416,6 +416,8 @@ router.get('/user-orders/:user_id', async (req, res) => {
         oi.coupon_code,
         oi.discount_percent,
         oi.discount_amount,
+        oi.rating,
+        oi.food_item_id,
         fi.name AS item_name,
         fi.image,
         fi.price,
@@ -633,6 +635,178 @@ router.get('/revenue', async (req, res) => {
   } catch (err) {
     console.error('Error fetching revenue data:', err);
     res.status(500).json({ success: false, message: 'Server error fetching revenue data' });
+  }
+});
+
+// -----------------------------
+// POST /api/order/rate
+// -----------------------------
+router.post('/rate', async (req, res) => {
+  const { order_item_id, user_id, food_id, rating } = req.body;
+
+  // Validate input
+  if (!order_item_id || !user_id || !food_id || !rating) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Missing required fields: order_item_id, user_id, food_id, rating' 
+    });
+  }
+
+  if (rating < 1 || rating > 5) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Rating must be between 1 and 5' 
+    });
+  }
+
+  try {
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+
+      // Check if the order exists and belongs to the user
+      const orderResult = await client.query(
+        'SELECT status, user_id, food_item_id FROM order_items WHERE order_item_id = $1',
+        [order_item_id]
+      );
+
+      if (orderResult.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Order not found' 
+        });
+      }
+
+      const order = orderResult.rows[0];
+
+      // Verify the order belongs to the user
+      if (order.user_id !== user_id) {
+        await client.query('ROLLBACK');
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Unauthorized: Order does not belong to this user' 
+        });
+      }
+
+      // Check if order is delivered
+      if (order.status !== 'delivered') {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Can only rate delivered orders' 
+        });
+      }
+
+      // Check if rating already exists for this order
+      const existingRatingResult = await client.query(
+        'SELECT id FROM food_ratings WHERE order_item_id = $1 AND user_id = $2',
+        [order_item_id, user_id]
+      );
+
+      if (existingRatingResult.rows.length > 0) {
+        // Update existing rating
+        await client.query(
+          'UPDATE food_ratings SET rating = $1, updated_at = CURRENT_TIMESTAMP WHERE order_item_id = $2 AND user_id = $3',
+          [rating, order_item_id, user_id]
+        );
+      } else {
+        // Insert new rating
+        await client.query(
+          'INSERT INTO food_ratings (order_item_id, user_id, food_id, rating) VALUES ($1, $2, $3, $4)',
+          [order_item_id, user_id, food_id, rating]
+        );
+      }
+
+      // Update rating in order_items table for quick access
+      await client.query(
+        'UPDATE order_items SET rating = $1 WHERE order_item_id = $2',
+        [rating, order_item_id]
+      );
+
+      await client.query('COMMIT');
+      
+      res.json({ 
+        success: true, 
+        message: 'Rating submitted successfully',
+        rating: rating
+      });
+
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+
+  } catch (error) {
+    console.error('Error submitting rating:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error submitting rating' 
+    });
+  }
+});
+
+// -----------------------------
+// GET /api/order/food-ratings/:food_id
+// -----------------------------
+router.get('/food-ratings/:food_id', async (req, res) => {
+  const { food_id } = req.params;
+
+  try {
+    const ratingsQuery = `
+      SELECT 
+        COUNT(*) as total_ratings,
+        ROUND(AVG(rating::numeric), 1) as average_rating
+      FROM food_ratings 
+      WHERE food_id = $1
+    `;
+    
+    const result = await pool.query(ratingsQuery, [food_id]);
+    const ratings = result.rows[0];
+    
+    res.json({
+      success: true,
+      food_id: parseInt(food_id),
+      average_rating: parseFloat(ratings.average_rating) || 0,
+      total_ratings: parseInt(ratings.total_ratings) || 0
+    });
+    
+  } catch (error) {
+    console.error('Error fetching food ratings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error fetching food ratings'
+    });
+  }
+});
+
+// -----------------------------
+// GET /api/order/sales/today
+// Get total sales for today
+// -----------------------------
+router.get('/sales/today', async (req, res) => {
+  try {
+    const { date } = req.query;
+    const targetDate = date || new Date().toISOString().split('T')[0]; // Use provided date or today
+    
+    // For now, return mock data - you can replace this with actual query later
+    res.json({
+      success: true,
+      date: targetDate,
+      totalSales: 15420.50, // Mock sales amount
+      totalOrders: 23 // Mock order count
+    });
+    
+  } catch (error) {
+    console.error('Error fetching today\'s sales:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error fetching sales data',
+      error: error.message
+    });
   }
 });
 

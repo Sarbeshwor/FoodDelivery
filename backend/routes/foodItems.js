@@ -103,4 +103,38 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+/**
+ * PUT /api/food/:id
+ * Update a food item by _id
+ */
+router.put('/:id', async (req, res) => {
+  const id = req.params.id;
+  const { name, description, price, category } = req.body;
+
+  try {
+    const updateQuery = `
+      UPDATE food_items 
+      SET name = $1, description = $2, price = $3, category = $4, updated_at = CURRENT_TIMESTAMP
+      WHERE _id = $5 
+      RETURNING *
+    `;
+    const values = [name, description, price, category, id];
+    const result = await pool.query(updateQuery, values);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Food item updated successfully',
+      foodItem: result.rows[0],
+    });
+
+  } catch (error) {
+    console.error('Error updating food item:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

@@ -86,3 +86,29 @@
     width : 30px;
 
 }
+
+/* Rating Styles */
+.rating-display {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.rating-stars {
+    color: #fbbf24;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.rating-text {
+    font-size: 11px;
+    color: #666;
+    font-weight: 500;
+}
+
+.no-rating {
+    font-size: 11px;
+    color: #999;
+    font-style: italic;
+}

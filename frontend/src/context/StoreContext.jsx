@@ -8,6 +8,7 @@ const StoreContextProvider = ({ children }) => {
   const [foodList, setFoodList] = useState([]); // food items fetched from backend
   const [kitchenList, setKitchenList] = useState([]); // kitchen owners fetched from backend
   const [selectedKitchen, setSelectedKitchen] = useState(null); // selected kitchen for filtering
+  const [foodRatings, setFoodRatings] = useState({}); // { food_id: {average_rating, total_ratings} }
 
   // Load user from localStorage once on mount
   useEffect(() => {
@@ -60,11 +61,59 @@ const StoreContextProvider = ({ children }) => {
     fetchFoodItems(kitchenId);
   };
 
-  // Function to show all food items
+  // Show all food items
   const showAllFood = () => {
     setSelectedKitchen(null);
     fetchFoodItems();
   };
+
+  // Fetch ratings whenever foodList changes
+  useEffect(() => {
+    const fetchRatings = async () => {
+      if (foodList.length === 0) return;
+
+      console.log("Fetching ratings for food items...", foodList.length);
+      try {
+        const ratingsData = {};
+
+        // Fetch ratings for each food item
+        for (const food of foodList) {
+          console.log(`Fetching ratings for food ID: ${food._id}`);
+          try {
+            const response = await fetch(
+              `http://localhost:5000/api/order/food-ratings/${food._id}`
+            );
+            if (response.ok) {
+              const data = await response.json();
+              console.log(`Ratings for food ${food._id}:`, data);
+              if (data.success) {
+                ratingsData[food._id] = {
+                  average_rating: data.average_rating,
+                  total_ratings: data.total_ratings,
+                };
+              }
+            } else {
+              console.error(
+                `Failed to fetch ratings for food ${food._id}: ${response.status}`
+              );
+            }
+          } catch (error) {
+            console.error(
+              `Error fetching ratings for food ${food._id}:`,
+              error
+            );
+          }
+        }
+
+        console.log("Final ratings data:", ratingsData);
+        setFoodRatings(ratingsData);
+      } catch (error) {
+        console.error("Error fetching food ratings:", error);
+      }
+    };
+
+    fetchRatings();
+  }, [foodList]);
 
   // Fetch user's cart items from backend whenever user changes (login/logout)
   useEffect(() => {
@@ -216,6 +265,7 @@ const StoreContextProvider = ({ children }) => {
         filterByKitchen,
         showAllFood,
         fetchFoodItems,
+        foodRatings,
         getTotalCartAmount,
         logout,
         updateUser,

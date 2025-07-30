@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Food List Debug</title>
+</head>
+<body>
+    <h1>Food List and Ratings Debug</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function debugFoodList() {
+            const results = document.getElementById('results');
+            
+            try {
+                // Get food list
+                results.innerHTML += '<h2>Food List:</h2>';
+                const foodResponse = await fetch('http://localhost:5000/api/food');
+                const foodList = await foodResponse.json();
+                results.innerHTML += `<pre>${JSON.stringify(foodList, null, 2)}</pre>`;
+                
+                // Get ratings for each food item
+                results.innerHTML += '<h2>Ratings for each food item:</h2>';
+                for (const food of foodList) {
+                    try {
+                        const ratingResponse = await fetch(`http://localhost:5000/api/order/food-ratings/${food._id}`);
+                        const ratingData = await ratingResponse.json();
+                        results.innerHTML += `<p><strong>${food.name} (ID: ${food._id}):</strong> ${JSON.stringify(ratingData)}</p>`;
+                    } catch (error) {
+                        results.innerHTML += `<p><strong>${food.name} (ID: ${food._id}):</strong> ERROR - ${error.message}</p>`;
+                    }
+                }
+                
+            } catch (error) {
+                results.innerHTML += `<p>ERROR: ${error.message}</p>`;
+            }
+        }
+        
+        debugFoodList();
+    </script>
+</body>
+</html>
