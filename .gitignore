@@ -1,1 +1,2 @@
-git rm --cached .env
+echo ".env" >> .gitignore
+echo "openai_keys.txt" >> .gitignore
