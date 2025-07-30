@@ -8,7 +8,9 @@ import { StoreContext } from "../../context/StoreContext";
 const Navbar = ({ setShowLogin, setShowUserDetail }) => {
   const [menu, setMenu] = useState("Menu");
   const [userImageUrl, setUserImageUrl] = useState(null);
-  const { getTotalCartAmount, user } = useContext(StoreContext);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showSearchInput, setShowSearchInput] = useState(false);
+  const { getTotalCartAmount, user, setSearchQuery } = useContext(StoreContext);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -29,6 +31,32 @@ const Navbar = ({ setShowLogin, setShowUserDetail }) => {
       setUserImageUrl(null);
     }
   }, [user]);
+
+  // Handle search functionality
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    if (setSearchQuery) {
+      setSearchQuery(value);
+    }
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (setSearchQuery) {
+      setSearchQuery(searchTerm);
+    }
+  };
+
+  const toggleSearchInput = () => {
+    setShowSearchInput(!showSearchInput);
+    if (!showSearchInput) {
+      setSearchTerm("");
+      if (setSearchQuery) {
+        setSearchQuery("");
+      }
+    }
+  };
   return (
     <div className="navbar">
       <Link to="/">
@@ -52,10 +80,10 @@ const Navbar = ({ setShowLogin, setShowUserDetail }) => {
         </a>
         <a
           href="#app-download"
-          onClick={() => setMenu("Stories")}
-          className={menu === "Stories" ? "active" : ""}
+          onClick={() => setMenu("About us")}
+          className={menu === "About us" ? "active" : ""}
         >
-          Stories
+          About us
         </a>
         <a
           href="#footer"
@@ -67,7 +95,26 @@ const Navbar = ({ setShowLogin, setShowUserDetail }) => {
       </ul>
 
       <div className="navbar-right">
-        <img src={assets.search_icon} alt="search" />
+        <div className="navbar-search">
+          {showSearchInput && (
+            <form onSubmit={handleSearchSubmit} className="search-form">
+              <input
+                type="text"
+                placeholder="Search food items..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="search-input"
+                autoFocus
+              />
+            </form>
+          )}
+          <img
+            src={assets.search_icon}
+            alt="search"
+            className="search-icon"
+            onClick={toggleSearchInput}
+          />
+        </div>
         <div className="navbar-search-icon">
           <Link to="/cart">
             <img src={assets.basket_icon} alt="cart" />

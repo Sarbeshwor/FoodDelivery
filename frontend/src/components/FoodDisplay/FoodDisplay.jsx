@@ -5,8 +5,8 @@ import { assets, menu_list } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
 
 const FoodDisplay = ({ category }) => {
-  // Get food list from context instead of local state
-  const { foodList } = useContext(StoreContext);
+  // Get food list and search query from context
+  const { foodList, searchQuery } = useContext(StoreContext);
 
   // Local state for filter UI
   const [showFilter, setShowFilter] = useState(false);
@@ -23,20 +23,36 @@ const FoodDisplay = ({ category }) => {
     }
   };
 
-  // Filtered food based on selected categories
+  // Filtered food based on selected categories and search query
   // Note: foodList is already filtered by kitchen in the context
-  const filteredFood =
-    selectedCategories.length === 0
-      ? foodList
-      : foodList.filter((item) => selectedCategories.includes(item.category));
+  let filteredFood = foodList;
+
+  // Apply category filter
+  if (selectedCategories.length > 0) {
+    filteredFood = filteredFood.filter((item) => 
+      selectedCategories.includes(item.category)
+    );
+  }
+
+  // Apply search filter
+  if (searchQuery.trim()) {
+    filteredFood = filteredFood.filter((item) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.category.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
 
   return (
     <div className="food-display" id="food-display">
       <div className="food-display-header">
         <h2>
-          {category && category !== "All"
+          {searchQuery.trim() 
+            ? `Search results for "${searchQuery}"`
+            : category && category !== "All"
             ? `Dishes from ${category}`
-            : "Trending dishes"}
+            : "Trending dishes"
+          }
         </h2>
         <img
           src={assets.filter}
@@ -93,16 +109,29 @@ const FoodDisplay = ({ category }) => {
       )}
 
       <div className="food-display-list">
-        {filteredFood.map((item) => (
-          <FoodItem
-            key={item._id}
-            id={item._id}
-            name={item.name}
-            price={item.price}
-            description={item.description}
-            image={item.image}
-          />
-        ))}
+        {filteredFood.length > 0 ? (
+          filteredFood.map((item) => (
+            <FoodItem
+              key={item._id}
+              id={item._id}
+              name={item.name}
+              price={item.price}
+              description={item.description}
+              image={item.image}
+            />
+          ))
+        ) : (
+          <div className="no-results">
+            <p>
+              {searchQuery.trim() 
+                ? `No food items found for "${searchQuery}"`
+                : selectedCategories.length > 0 
+                ? "No food items found in selected categories"
+                : "No food items available"
+              }
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

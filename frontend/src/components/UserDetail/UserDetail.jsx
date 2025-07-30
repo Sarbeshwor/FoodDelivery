@@ -317,10 +317,6 @@ const UserDetail = ({ setShowUserDetail }) => {
 
   // Cancel order function
   const cancelOrder = async (order_item_id) => {
-    if (!confirm("Are you sure you want to cancel this order?")) {
-      return;
-    }
-
     try {
       const response = await fetch(
         `http://localhost:5000/api/order/cancel/${order_item_id}`,

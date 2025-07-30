@@ -9,6 +9,7 @@ const StoreContextProvider = ({ children }) => {
   const [kitchenList, setKitchenList] = useState([]); // kitchen owners fetched from backend
   const [selectedKitchen, setSelectedKitchen] = useState(null); // selected kitchen for filtering
   const [foodRatings, setFoodRatings] = useState({}); // { food_id: {average_rating, total_ratings} }
+  const [searchQuery, setSearchQuery] = useState(""); // search query for filtering food items
 
   // Load user from localStorage once on mount
   useEffect(() => {
@@ -266,6 +267,8 @@ const StoreContextProvider = ({ children }) => {
         showAllFood,
         fetchFoodItems,
         foodRatings,
+        searchQuery,
+        setSearchQuery,
         getTotalCartAmount,
         logout,
         updateUser,

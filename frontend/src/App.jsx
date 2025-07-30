@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import Navbar from './components/Navbar/Navbar';
-import './App.css';
-import { Route, Routes } from 'react-router-dom';
-import Home from './pages/Home/Home';
-import Cart from './pages/Cart/Cart';
-import PlaceOrder from './pages/PlaceOrder/PlaceOrder';
-import LoginPopup from './components/LoginPopup/LoginPopup';
-import UserDetail from './components/UserDetail/UserDetail';
-import Footer from './components/Footer/Footer';
-import { ToastContainer } from 'react-toastify';
-import StoreContextProvider  from './context/StoreContext'; 
+import React, { useState } from "react";
+import Navbar from "./components/Navbar/Navbar";
+
+import "./App.css";
+import { Route, Routes } from "react-router-dom";
+import Home from "./pages/Home/Home";
+import Cart from "./pages/Cart/Cart";
+import PlaceOrder from "./pages/PlaceOrder/PlaceOrder";
+import LoginPopup from "./components/LoginPopup/LoginPopup";
+import UserDetail from "./components/UserDetail/UserDetail";
+import Footer from "./components/Footer/Footer";
+import { ToastContainer } from "react-toastify";
+import StoreContextProvider from "./context/StoreContext";
 
 // ✅ Import your StoreProvider
 // import { StoreProvider } from './components/StoreContext/StoreContext';
@@ -27,9 +28,7 @@ const App = () => {
         />
       )}
 
-      {showUserDetail && (
-        <UserDetail setShowUserDetail={setShowUserDetail} />
-      )}
+      {showUserDetail && <UserDetail setShowUserDetail={setShowUserDetail} />}
 
       <div className="app">
         <Navbar
@@ -43,9 +42,9 @@ const App = () => {
         </Routes>
         <Footer />
       </div>
+      
       <ToastContainer />
-      </StoreContextProvider>
-    
+    </StoreContextProvider>
   );
 };
 

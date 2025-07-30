@@ -2,11 +2,13 @@ import React, { useState, useEffect, useContext } from "react";
 import "./PlaceOrder.css";
 import { StoreContext } from "../../context/StoreContext";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const PlaceOrder = () => {
   const { cartItems, getTotalCartAmount, setCartItems } =
     useContext(StoreContext);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Get user info from localStorage
   const storedUser = localStorage.getItem("user");
@@ -141,6 +143,9 @@ const PlaceOrder = () => {
       setCartItems({}); // clear cart
       // Clear applied coupon from localStorage
       localStorage.removeItem("appliedCoupon");
+
+      // Redirect to home page after successful order
+      navigate("/");
     } catch (error) {
       toast.error("Error placing order: " + error.message);
     } finally {
