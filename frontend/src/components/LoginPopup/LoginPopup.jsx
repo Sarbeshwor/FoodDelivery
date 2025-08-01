@@ -78,7 +78,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
       if (roles.includes("kitchen") || roles.includes("admin")) {
         // window.open("https://food-delivery-msjh.vercel.app/add", "_blank");
-        window.open("http://localhost:5174/list", "_blank");
+        window.open("http://localhost:5173/list", "_blank");
       } else if (roles.includes("delivery")) {
         window.open("http://localhost:5175/", "_blank");
       } else {

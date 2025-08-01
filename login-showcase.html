@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login UI Showcase - Food Delivery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .showcase-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .showcase-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .card-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .card-button {
+            background: #FEC240;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .card-button:hover {
+            background: white;
+            color: #FEC240;
+            border: 2px solid #FEC240;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(254, 194, 64, 0.3);
+        }
+        
+        .features {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .features h2 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .feature-item {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #FEC240;
+        }
+        
+        .feature-item h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        
+        .feature-item p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .back-link a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .back-link a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .showcase-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍽️ Food Delivery Login UI Showcase</h1>
+            <p>Redesigned login interfaces matching the frontend design</p>
+        </div>
+        
+        <div class="showcase-grid">
+            <div class="showcase-card">
+                <div class="card-icon">🔐</div>
+                <h3 class="card-title">Admin Login</h3>
+                <p class="card-description">
+                    Kitchen management portal login with enhanced UI, loading states, and error handling.
+                </p>
+                <a href="/admin/public/login.html" class="card-button">View Admin Login</a>
+            </div>
+            
+            <div class="showcase-card">
+                <div class="card-icon">🚚</div>
+                <h3 class="card-title">Delivery Login</h3>
+                <p class="card-description">
+                    Delivery partner portal login with role-based authentication and improved UX.
+                </p>
+                <a href="/delivery/public/login.html" class="card-button">View Delivery Login</a>
+            </div>
+            
+            <div class="showcase-card">
+                <div class="card-icon">❌</div>
+                <h3 class="card-title">Access Denied</h3>
+                <p class="card-description">
+                    User-friendly error page for unauthorized access attempts with helpful guidance.
+                </p>
+                <a href="/admin/public/access-denied.html" class="card-button">View Error Page</a>
+            </div>
+        </div>
+        
+        <div class="features">
+            <h2>✨ New Features & Improvements</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <h3>🎨 Consistent Design</h3>
+                    <p>All login pages now use the same color scheme (#FEC240) and typography (Outfit font) as the main frontend.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>🔄 Loading States</h3>
+                    <p>Beautiful loading animations and disabled states during authentication requests.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>🚨 Better Error Handling</h3>
+                    <p>Improved error messages with clear instructions and auto-hide success notifications.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>⌨️ Keyboard Shortcuts</h3>
+                    <p>Alt+T for quick test login fill and Enter key navigation between fields.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>🔐 Role-Based Access</h3>
+                    <p>Proper role validation ensuring only authorized users can access specific portals.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>📱 Responsive Design</h3>
+                    <p>Mobile-friendly layouts that work perfectly on all device sizes.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>🔄 Auto-Logout Sync</h3>
+                    <p>Cross-app logout functionality clears all sessions when user logs out from main app.</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>🎯 Quick Access</h3>
+                    <p>Test credentials auto-fill for development and testing convenience.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="back-link">
+            <a href="../test-logout.html">← Back to Cross-App Logout Test</a>
+        </div>
+    </div>
+</body>
+</html>

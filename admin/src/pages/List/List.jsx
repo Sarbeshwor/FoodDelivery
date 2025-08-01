@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./List.css";
+import { toast } from "react-toastify";
 
 const List = () => {
   const [foodList, setFoodList] = useState([]);
@@ -91,7 +92,7 @@ const List = () => {
       );
 
       console.log(`Item updated successfully`);
-      
+
       toast.success("Item updated successfully!");
       setEditModal({ isOpen: false, item: null });
     } catch (err) {

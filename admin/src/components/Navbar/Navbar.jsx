@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Navbar.css";
 import { assets } from "../../assets/assets";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const [user, setUser] = useState(null);
@@ -38,6 +39,19 @@ const Navbar = () => {
     }
   };
 
+  const handleLogout = () => {
+    // Clear localStorage
+    localStorage.clear();
+
+    // Show success message
+    toast.success("Logged out successfully!");
+
+    // Redirect to login page
+    setTimeout(() => {
+      window.location.href = "/login.html";
+    }, 1000);
+  };
+
   return (
     <div className="navbar">
       <img className="logo" src={assets.logo} alt="" />
@@ -45,9 +59,10 @@ const Navbar = () => {
         {user && <span className="welcome-text">Welcome, {user.username}</span>}
         <div className="sales-counter">
           <span className="sales-label">Have a good business day.</span>
-          
-          
         </div>
+        <button className="logout-btn" onClick={handleLogout} title="Logout">
+          🔐 Logout
+        </button>
       </div>
     </div>
   );

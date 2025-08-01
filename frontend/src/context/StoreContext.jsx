@@ -240,6 +240,51 @@ const StoreContextProvider = ({ children }) => {
     setUser(null);
     setCartItems({});
     localStorage.removeItem("user");
+
+    // Clear localStorage from admin and delivery apps by sending messages
+    clearCrossAppStorage();
+  };
+
+  // Function to clear localStorage from admin and delivery apps
+  const clearCrossAppStorage = () => {
+    try {
+      // Set a logout signal that other apps can detect via storage events
+      localStorage.setItem("logout_signal", "true");
+
+      // Remove the signal after a short delay
+      setTimeout(() => {
+        localStorage.removeItem("logout_signal");
+      }, 1000);
+
+      // Send message to admin app (localhost:5173)
+      const adminWindow = window.open("", "_blank");
+      if (adminWindow) {
+        adminWindow.postMessage(
+          { type: "LOGOUT_CLEAR_STORAGE" },
+          "http://localhost:5173"
+        );
+        adminWindow.close();
+      }
+
+      // Send message to delivery app (localhost:5175)
+      const deliveryWindow = window.open("", "_blank");
+      if (deliveryWindow) {
+        deliveryWindow.postMessage(
+          { type: "LOGOUT_CLEAR_STORAGE" },
+          "http://localhost:5175"
+        );
+        deliveryWindow.close();
+      }
+
+      // Alternative approach: Use BroadcastChannel for same-origin communication
+      if (typeof BroadcastChannel !== "undefined") {
+        const logoutChannel = new BroadcastChannel("logout_channel");
+        logoutChannel.postMessage({ type: "LOGOUT_CLEAR_STORAGE" });
+        logoutChannel.close();
+      }
+    } catch (error) {
+      console.log("Cross-app storage clearing failed:", error);
+    }
   };
 
   // Update user data

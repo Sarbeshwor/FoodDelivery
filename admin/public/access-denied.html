@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied - Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .error-container {
+            background: white;
+            width: max(25vw, 450px);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .error-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .error-title {
+            color: #333;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .error-message {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .login-btn {
+            background: #FEC240;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 10px;
+        }
+        
+        .login-btn:hover {
+            background: white;
+            color: #FEC240;
+            border: 2px solid #FEC240;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(254, 194, 64, 0.3);
+        }
+        
+        .back-btn {
+            background: transparent;
+            color: #666;
+            border: 2px solid #ddd;
+            padding: 10px 22px;
+        }
+        
+        .back-btn:hover {
+            background: #f8f9fa;
+            border-color: #999;
+            color: #333;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .info-box h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .info-box ul {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-left: 20px;
+        }
+        
+        .info-box li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">🔐</div>
+        <h1 class="error-title">Access Denied</h1>
+        <p class="error-message">
+            You need to be logged in as a kitchen user to access the admin panel.
+            Please log in with your kitchen credentials to continue.
+        </p>
+        
+        <div>
+            <a href="/login.html" class="login-btn">Login to Admin</a>
+            <a href="javascript:history.back()" class="login-btn back-btn">Go Back</a>
+        </div>
+        
+        <div class="info-box">
+            <h4>🎯 Need Access?</h4>
+            <ul>
+                <li>Contact your administrator to create a kitchen user account</li>
+                <li>Make sure you're using the correct email and password</li>
+                <li>Only users with "kitchen" role can access this panel</li>
+                <li>If you're a customer or delivery partner, use the main app instead</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Auto-redirect to login after 10 seconds
+        let countdown = 10;
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                window.location.href = '/login.html';
+            }
+        }, 1000);
+
+        // Clear any existing auth data
+        localStorage.removeItem('user');
+        sessionStorage.clear();
+
+        console.log('🔐 Access denied page loaded');
+        console.log('🗑️ Cleared any existing auth data');
+    </script>
+</body>
+</html>

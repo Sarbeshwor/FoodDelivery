@@ -1,5 +1,4 @@
- -- Database Schema for Food Delivery App
--- Run this script on your new cloud database
+
 
 -- Create tables in order (dependencies first)
 
@@ -149,7 +148,5 @@ CREATE INDEX IF NOT EXISTS idx_cart_user_id ON cart(user_id);
 CREATE INDEX IF NOT EXISTS idx_deliveries_order_id ON deliveries(order_id);
 CREATE INDEX IF NOT EXISTS idx_food_ratings_food_item_id ON food_ratings(food_item_id);
 
--- Insert sample data (optional)
--- You can add sample kitchens, food items, etc. here
 
 COMMIT;

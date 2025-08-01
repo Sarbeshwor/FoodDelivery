@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-App Logout Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>🔐 Cross-App Logout Test</h1>
+    
+    <div class="status info">
+        <strong>Test Instructions:</strong>
+        <ol>
+            <li>Open admin app (localhost:5173) in a new tab</li>
+            <li>Login with a kitchen user account</li>
+            <li>Open delivery app (localhost:5175) in another tab</li>
+            <li>Come back to this page and click "Simulate Frontend Logout"</li>
+            <li>Check if admin and delivery apps automatically clear their data</li>
+        </ol>
+    </div>
+
+    <div class="status" id="status">
+        Ready to test...
+    </div>
+
+    <button class="button" onclick="simulateLogin()">1. Simulate Login</button>
+    <button class="button" onclick="simulateFrontendLogout()">2. Simulate Frontend Logout</button>
+    <button class="button" onclick="checkLocalStorage()">3. Check LocalStorage</button>
+    <button class="button" onclick="clearAll()">4. Clear All Data</button>
+
+    <div id="localStorage-content"></div>
+
+    <script>
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+        }
+
+        function simulateLogin() {
+            const mockUser = {
+                id: 7,
+                username: 'kitchen',
+                email: 'kitchen@kitchen',
+                roles: ['kitchen'],
+                kitchenId: 4
+            };
+            
+            localStorage.setItem('user', JSON.stringify(mockUser));
+            updateStatus('✅ Mock user data saved to localStorage', 'success');
+            checkLocalStorage();
+        }
+
+        function simulateFrontendLogout() {
+            updateStatus('🔄 Simulating frontend logout...', 'info');
+            
+            // Remove user data (simulating frontend logout)
+            localStorage.removeItem('user');
+            
+            // Set logout signal for other apps
+            localStorage.setItem('logout_signal', 'true');
+            
+            // Remove signal after delay
+            setTimeout(() => {
+                localStorage.removeItem('logout_signal');
+            }, 1000);
+            
+            // Use BroadcastChannel
+            if (typeof BroadcastChannel !== 'undefined') {
+                const logoutChannel = new BroadcastChannel('logout_channel');
+                logoutChannel.postMessage({ type: "LOGOUT_CLEAR_STORAGE" });
+                logoutChannel.close();
+            }
+            
+            updateStatus('✅ Frontend logout simulated. Check admin/delivery apps!', 'success');
+            checkLocalStorage();
+        }
+
+        function checkLocalStorage() {
+            const content = document.getElementById('localStorage-content');
+            const keys = Object.keys(localStorage);
+            
+            if (keys.length === 0) {
+                content.innerHTML = '<div class="status info"><strong>LocalStorage:</strong> Empty</div>';
+            } else {
+                let html = '<div class="status info"><strong>LocalStorage Contents:</strong><br>';
+                keys.forEach(key => {
+                    html += `<strong>${key}:</strong> ${localStorage.getItem(key)}<br>`;
+                });
+                html += '</div>';
+                content.innerHTML = html;
+            }
+        }
+
+        function clearAll() {
+            localStorage.clear();
+            updateStatus('🗑️ All localStorage data cleared', 'info');
+            checkLocalStorage();
+        }
+
+        // Listen for logout signals
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'logout_signal' && event.newValue === 'true') {
+                updateStatus('📡 Logout signal detected!', 'success');
+            }
+        });
+
+        if (typeof BroadcastChannel !== 'undefined') {
+            const logoutChannel = new BroadcastChannel('logout_channel');
+            logoutChannel.addEventListener('message', (event) => {
+                if (event.data.type === 'LOGOUT_CLEAR_STORAGE') {
+                    updateStatus('📡 BroadcastChannel logout message received!', 'success');
+                }
+            });
+        }
+
+        // Initialize
+        checkLocalStorage();
+    </script>
+</body>
+</html>

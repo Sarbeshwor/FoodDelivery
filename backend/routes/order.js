@@ -2,9 +2,6 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
-// -----------------------------
-// POST /api/order/place
-// -----------------------------
 router.post('/place', async (req, res) => {
   const { user_id, items, coupon, total_amount } = req.body;
 
@@ -52,9 +49,6 @@ router.post('/place', async (req, res) => {
   }
 });
 
-// -----------------------------
-// GET /api/order/accepted
-// -----------------------------
 router.get('/accepted', async (req, res) => {
   try {
     const query = `
@@ -80,9 +74,6 @@ router.get('/accepted', async (req, res) => {
   }
 });
 
-// -----------------------------
-// GET /api/order/ready_for_pickup
-// -----------------------------
 router.get('/ready_for_pickup', async (req, res) => {
   try {
     const query = `
@@ -119,7 +110,6 @@ router.put('/onitsway/:id', async (req, res) => {
   try {
     const client = await pool.connect();
 
-    // Step 1: Update order status
     const result = await client.query(
       `UPDATE order_items 
        SET status = 'onitsway', ordered_at = NOW()
@@ -133,8 +123,7 @@ router.put('/onitsway/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    // Step 2: Track assignment in delivery_assignments table
-await client.query(
+    await client.query(
   `INSERT INTO delivery_assignments (order_item_id, delivery_user_id, assigned_at)
    VALUES ($1, $2, NOW())
    ON CONFLICT (order_item_id) DO UPDATE 
@@ -157,9 +146,6 @@ await client.query(
   }
 });
 
-// -----------------------------
-// GET /api/order?kitchenId=...
-// -----------------------------
 router.get('/', async (req, res) => {
   const { kitchenId } = req.query;
 
@@ -194,9 +180,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// -----------------------------
-// PUT /api/order/:id/status
-// -----------------------------
 router.put('/:id/status', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -256,9 +239,6 @@ router.put('/:id/status', async (req, res) => {
   }
 });
 
-// -----------------------------
-// GET /api/order/delivery
-// -----------------------------
 router.get('/delivery', async (req, res) => {
   try {
     const query = `
@@ -283,9 +263,6 @@ router.get('/delivery', async (req, res) => {
   }
 });
 
-// -----------------------------
-// POST /api/order/accept/:id
-// -----------------------------
 router.post('/accept/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -306,9 +283,6 @@ router.post('/accept/:id', async (req, res) => {
   }
 });
 
-// -----------------------------
-// GET /api/order/my-deliveries/:delivery_user_id
-// -----------------------------
 router.get('/my-deliveries/:delivery_user_id', async (req, res) => {
   const { delivery_user_id } = req.params;
 
@@ -346,7 +320,7 @@ router.get('/my-deliveries/:delivery_user_id', async (req, res) => {
     `;
     
     const result = await pool.query(query, [delivery_user_id]);
-    console.log(`Found ${result.rows.length} deliveries for user ${delivery_user_id}`); // Debug log
+    console.log(`Found ${result.rows.length} deliveries for user ${delivery_user_id}`);
     res.json({ success: true, deliveries: result.rows });
   } catch (err) {
     console.error('Error fetching delivery assignments:', err);
@@ -354,9 +328,6 @@ router.get('/my-deliveries/:delivery_user_id', async (req, res) => {
   }
 });
 
-// -----------------------------
-// GET /api/order/delivery-details/:order_item_id
-// -----------------------------
 router.get('/delivery-details/:order_item_id', async (req, res) => {
   const { order_item_id } = req.params;
 
@@ -400,9 +371,6 @@ router.get('/delivery-details/:order_item_id', async (req, res) => {
   }
 });
 
-// -----------------------------
-// GET /api/order/user-orders/:user_id
-// -----------------------------
 router.get('/user-orders/:user_id', async (req, res) => {
   const { user_id } = req.params;
 
@@ -436,9 +404,6 @@ router.get('/user-orders/:user_id', async (req, res) => {
   }
 });
 
-// -----------------------------
-// POST /api/order/cancel/:order_item_id
-// -----------------------------
 router.post('/cancel/:order_item_id', async (req, res) => {
   const { order_item_id } = req.params;
   const { user_id, reason } = req.body;
@@ -446,7 +411,6 @@ router.post('/cancel/:order_item_id', async (req, res) => {
   try {
     const client = await pool.connect();
     
-    // Get current order status
     const orderResult = await client.query(
       'SELECT status, user_id FROM order_items WHERE order_item_id = $1',
       [order_item_id]
@@ -459,13 +423,11 @@ router.post('/cancel/:order_item_id', async (req, res) => {
 
     const { status, user_id: order_user_id } = orderResult.rows[0];
 
-    // Verify user owns this order
     if (parseInt(order_user_id) !== parseInt(user_id)) {
       client.release();
       return res.status(403).json({ success: false, message: 'Unauthorized to cancel this order' });
     }
 
-    // Check if order can be cancelled - users can cancel at any time except already cancelled
     const cancellableStatuses = ['pending', 'accepted', 'ready_for_pickup', 'onitsway', 'delivered'];
     if (!cancellableStatuses.includes(status)) {
       client.release();
@@ -475,16 +437,13 @@ router.post('/cancel/:order_item_id', async (req, res) => {
       });
     }
 
-    // For all statuses including "onitsway", cancel completely when user cancels
     if (status === 'onitsway') {
-      // Remove from delivery assignments since delivery is cancelled
       await client.query(
         'DELETE FROM delivery_assignments WHERE order_item_id = $1',
         [order_item_id]
       );
     }
     
-    // Cancel the order completely for all statuses
     await client.query(
       `UPDATE order_items 
        SET status = 'cancelled', ordered_at = NOW() 
@@ -505,9 +464,6 @@ router.post('/cancel/:order_item_id', async (req, res) => {
   }
 });
 
-// -----------------------------
-// POST /api/order/delivery-cancel/:order_item_id
-// -----------------------------
 router.post('/delivery-cancel/:order_item_id', async (req, res) => {
   const { order_item_id } = req.params;
   const { delivery_user_id, reason } = req.body;
@@ -515,7 +471,6 @@ router.post('/delivery-cancel/:order_item_id', async (req, res) => {
   try {
     const client = await pool.connect();
     
-    // Verify this delivery person is assigned to this order
     const deliveryResult = await client.query(
       'SELECT id FROM delivery_assignments WHERE order_item_id = $1 AND delivery_user_id = $2',
       [order_item_id, delivery_user_id]
@@ -529,7 +484,6 @@ router.post('/delivery-cancel/:order_item_id', async (req, res) => {
       });
     }
 
-    // Get current order status
     const orderResult = await client.query(
       'SELECT status FROM order_items WHERE order_item_id = $1',
       [order_item_id]
@@ -550,13 +504,11 @@ router.post('/delivery-cancel/:order_item_id', async (req, res) => {
       });
     }
 
-    // Remove from delivery assignments and return to kitchen
     await client.query(
       'DELETE FROM delivery_assignments WHERE order_item_id = $1',
       [order_item_id]
     );
     
-    // Update order status back to ready_for_pickup
     await client.query(
       `UPDATE order_items 
        SET status = 'ready_for_pickup', ordered_at = NOW() 

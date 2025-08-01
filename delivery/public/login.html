@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Food Delivery</title>
+    <title>Delivery Login - Food Delivery</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     <style>
         * {
@@ -185,6 +185,23 @@
             to { transform: rotate(360deg); }
         }
         
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .register-link a {
+            color: #FEC240;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+        
         @media (max-width: 480px) {
             .login-container {
                 width: 90%;
@@ -195,14 +212,13 @@
                 font-size: 24px;
             }
         }
-        
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h1>🍽️ Admin Login</h1>
-            <p>Kitchen Management System</p>
+            <h1>🚚 Delivery Login</h1>
+            <p>Delivery Partner Portal</p>
         </div>
         
         <div id="message"></div>
@@ -219,19 +235,23 @@
             </div>
             
             <button type="submit" class="login-btn" id="loginBtn">
-                Login to Admin Panel
+                Login to Delivery Portal
             </button>
         </form>
         
         <div class="quick-login">
-            <h3>🔧 Quick Login (Test Kitchen User)</h3>
+            <h3>🔧 Quick Login (Test Delivery User)</h3>
             <div class="credentials">
-                <strong>Email:</strong> kitchen@kitchen<br>
-                <strong>Password:</strong> kitchen123
+                <strong>Email:</strong> d@d<br>
+                <strong>Password:</strong> (check with admin)
             </div>
             <button class="quick-fill-btn" onclick="quickFill()">
-                Auto-fill credentials
+                Auto-fill email
             </button>
+        </div>
+        
+        <div class="register-link">
+            <p>Don't have an account? <a href="../frontend/index.html">Register as Delivery Partner</a></p>
         </div>
     </div>
 
@@ -249,11 +269,9 @@
         }
 
         function quickFill() {
-            document.getElementById('email').value = 'kitchen@kitchen';
-            document.getElementById('password').value = 'kitchen123';
-            
-            // Focus on the login button for better UX
-            document.getElementById('loginBtn').focus();
+            document.getElementById('email').value = 'd@d';
+            // Focus on password field for user to enter password
+            document.getElementById('password').focus();
         }
 
         function setLoadingState(isLoading) {
@@ -265,7 +283,7 @@
                 loginBtn.innerHTML = spinner + 'Logging in...';
             } else {
                 loginBtn.disabled = false;
-                loginBtn.innerHTML = 'Login to Admin Panel';
+                loginBtn.innerHTML = 'Login to Delivery Portal';
             }
         }
 
@@ -289,18 +307,18 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    // Check if user has kitchenId
-                    if (!data.user.kitchenId) {
-                        showMessage('❌ This user does not have kitchen access. Please use a kitchen user account.', 'error');
+                    // Check if user has delivery role
+                    if (!data.user.roles.includes('delivery')) {
+                        showMessage('❌ This user does not have delivery access. Please use a delivery partner account.', 'error');
                         return;
                     }
                     
                     // Store user data in localStorage
                     localStorage.setItem('user', JSON.stringify(data.user));
                     
-                    showMessage(`✅ Login successful! Welcome ${data.user.username}. Redirecting to admin panel...`, 'success');
+                    showMessage(`✅ Login successful! Welcome ${data.user.username}. Redirecting to delivery portal...`, 'success');
                     
-                    // Redirect to admin panel
+                    // Redirect to delivery portal
                     setTimeout(() => {
                         window.location.href = '/';
                     }, 1500);
@@ -322,7 +340,7 @@
         
         // Show current status
         window.addEventListener('load', () => {
-            console.log('🔧 Admin Login Page Loaded');
+            console.log('🚚 Delivery Login Page Loaded');
             console.log('🗑️ Cleared any existing user data');
             console.log('🔐 Ready for fresh login');
             

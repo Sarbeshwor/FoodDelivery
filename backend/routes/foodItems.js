@@ -1,5 +1,3 @@
-// routes/foodItems.js
-
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -7,28 +5,21 @@ const fs = require('fs');
 const pool = require('../db');
 const cloudinary = require('../uploads/cloudinary');
 
-// Use multer for file uploads (temp storage)
 const upload = multer({ dest: 'uploads/' });
 
-/**
- * POST /api/food/add
- * Uploads image to Cloudinary, saves new food item to DB
- */
+// POST /api/food/add
 router.post('/add', upload.single('image'), async (req, res) => {
   try {
-    // 1️⃣ Upload image to Cloudinary
     const cloudResult = await cloudinary.uploader.upload(req.file.path);
     const imageUrl = cloudResult.secure_url;
 
-    // 2️⃣ Get other form data including kitchenId
     const { name, description, price, category, kitchenId } = req.body;
-    const kitchen_id = kitchenId;  // Use kitchenId sent from frontend
+    const kitchen_id = kitchenId;
 
     if (!kitchen_id) {
       return res.status(400).json({ success: false, message: 'kitchenId is required' });
     }
 
-    // 3️⃣ Insert into food_items table
     const insertQuery = `
       INSERT INTO food_items (name, image, price, description, category, kitchen_id)
       VALUES ($1, $2, $3, $4, $5, $6)
@@ -37,7 +28,6 @@ router.post('/add', upload.single('image'), async (req, res) => {
     const values = [name, imageUrl, price, description, category, kitchen_id];
     const result = await pool.query(insertQuery, values);
 
-    // 4️⃣ Remove local temp file
     fs.unlinkSync(req.file.path);
 
     res.status(201).json({
@@ -55,11 +45,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
   }
 });
 
-
-/**
- * GET /api/food/
- * Get all food items
- */
+// GET /api/food/
 router.get('/', async (req, res) => {
   const kitchenId = req.query.kitchenId;
 
@@ -80,11 +66,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-
-/**
- * DELETE /api/food/:id
- * Delete a food item by _id
- */
+// DELETE /api/food/:id
 router.delete('/:id', async (req, res) => {
   const id = req.params.id;
 
@@ -103,10 +85,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-/**
- * PUT /api/food/:id
- * Update a food item by _id
- */
+// PUT /api/food/:id
 router.put('/:id', async (req, res) => {
   const id = req.params.id;
   const { name, description, price, category } = req.body;
