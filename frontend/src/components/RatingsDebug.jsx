@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { StoreContext } from "../context/StoreContext";
+import { API_BASE_URL } from "../config/api";
 
 const RatingsDebug = () => {
   const { foodList, foodRatings, fetchFoodRatings } = useContext(StoreContext);

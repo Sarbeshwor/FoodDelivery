@@ -3,6 +3,7 @@ import "./UserDetail.css";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../context/StoreContext";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../../config/api";
 import {
   FaUser,
   FaEnvelope,
@@ -126,7 +127,7 @@ const UserDetail = ({ setShowUserDetail }) => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/user/${user.id}/profile`,
+        `${API_BASE_URL}/api/user/${user.id}/profile`,
         {
           method: "PUT",
           body: formData,
@@ -175,7 +176,7 @@ const UserDetail = ({ setShowUserDetail }) => {
     setLoadingOrders(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/order/user-orders/${user.id}`
+        `${API_BASE_URL}/api/order/user-orders/${user.id}`
       );
       const data = await response.json();
 
@@ -199,7 +200,7 @@ const UserDetail = ({ setShowUserDetail }) => {
     setLoadingAddress(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/delivery/user/${user.id}`
+        `${API_BASE_URL}/api/delivery/user/${user.id}`
       );
 
       if (response.ok) {
@@ -224,7 +225,7 @@ const UserDetail = ({ setShowUserDetail }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:5000/api/delivery/save", {
+      const response = await fetch("${API_BASE_URL}/api/delivery/save", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -319,7 +320,7 @@ const UserDetail = ({ setShowUserDetail }) => {
   const cancelOrder = async (order_item_id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/order/cancel/${order_item_id}`,
+        `${API_BASE_URL}/api/order/cancel/${order_item_id}`,
         {
           method: "POST",
           headers: {
@@ -378,7 +379,7 @@ const UserDetail = ({ setShowUserDetail }) => {
 
     setSubmittingRating(true);
     try {
-      const response = await fetch("http://localhost:5000/api/order/rate", {
+      const response = await fetch("${API_BASE_URL}/api/order/rate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
