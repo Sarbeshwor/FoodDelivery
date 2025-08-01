@@ -45,55 +45,55 @@ const LoginPopup = ({ setShowLogin }) => {
         toast.error("Network error: " + err.message);
       }
     } else if (currState === "Login") {
-  try {
-    const res = await fetch("${API_BASE_URL}/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
+      try {
+        const res = await fetch("${API_BASE_URL}/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        });
 
-    const data = await res.json();
-    if (res.ok) {
-      const roles = data.user.roles;
+        const data = await res.json();
+        if (res.ok) {
+          const roles = data.user.roles;
 
-      const userToStore = {
-        id: data.user.id,
-        username: data.user.username,
-        email: data.user.email,
-        roles, 
-        image_url: data.user.image_url || "https://res.cloudinary.com/dlouxq1cv/image/upload/v1753460852/eycervpqe0lsz9n5rc7d.png",
+          const userToStore = {
+            id: data.user.id,
+            username: data.user.username,
+            email: data.user.email,
+            roles,
+            image_url:
+              data.user.image_url ||
+              "https://res.cloudinary.com/dlouxq1cv/image/upload/v1753460852/eycervpqe0lsz9n5rc7d.png",
+          };
 
-      };
+          if (roles.includes("kitchen")) {
+            userToStore.kitchenId = data.user.kitchenId;
+          }
 
-      if (roles.includes("kitchen")) {
-        userToStore.kitchenId = data.user.kitchenId;
+          localStorage.setItem("user", JSON.stringify(userToStore));
+          setShowLogin(false);
+
+          toast.success(`Welcome back, ${data.user.username}!`);
+
+          if (roles.includes("kitchen") || roles.includes("admin")) {
+            // window.open("https://food-delivery-msjh.vercel.app/add", "_blank");
+            window.open("http://localhost:5173/list", "_blank");
+          } else if (roles.includes("delivery")) {
+            window.open("http://localhost:5175/", "_blank");
+          } else {
+            setUser(userToStore);
+            window.location.reload();
+          }
+        } else {
+          toast.error(data.message || "Login failed");
+        }
+      } catch (err) {
+        toast.error("Network error");
       }
-
-      localStorage.setItem("user", JSON.stringify(userToStore));
-      setShowLogin(false);
-
-      toast.success(`Welcome back, ${data.user.username}!`);
-
-      if (roles.includes("kitchen") || roles.includes("admin")) {
-        // window.open("https://food-delivery-msjh.vercel.app/add", "_blank");
-        window.open("http://localhost:5173/list", "_blank");
-      } else if (roles.includes("delivery")) {
-        window.open("http://localhost:5175/", "_blank");
-      } else {
-        setUser(userToStore);
-        window.location.reload();
-      }
-    } else {
-      toast.error(data.message || "Login failed");
     }
-  } catch (err) {
-    toast.error("Network error");
-  }
-}
-
   };
 
   return (

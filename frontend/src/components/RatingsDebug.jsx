@@ -13,7 +13,7 @@ const RatingsDebug = () => {
       for (const food of foodList) {
         try {
           const response = await fetch(
-            `http://localhost:5000/api/order/food-ratings/${food._id}`
+            `${API_BASE_URL}/api/order/food-ratings/${food._id}`
           );
           const data = await response.json();
           testResults[food._id] = data;
