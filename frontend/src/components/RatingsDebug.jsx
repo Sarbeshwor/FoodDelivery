@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import { StoreContext } from "../context/StoreContext";
-import { API_BASE_URL } from "../config/api";
 
 const RatingsDebug = () => {
   const { foodList, foodRatings, fetchFoodRatings } = useContext(StoreContext);
@@ -13,7 +12,7 @@ const RatingsDebug = () => {
       for (const food of foodList) {
         try {
           const response = await fetch(
-            `${API_BASE_URL}/api/order/food-ratings/${food._id}`
+            `http://localhost:5000/api/order/food-ratings/${food._id}`
           );
           const data = await response.json();
           testResults[food._id] = data;

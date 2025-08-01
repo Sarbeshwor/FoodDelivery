@@ -1,5 +1,4 @@
 import React, { createContext, useState, useEffect } from "react";
-import { API_BASE_URL } from "../config/api";
 
 export const StoreContext = createContext();
 
@@ -31,7 +30,7 @@ const StoreContextProvider = ({ children }) => {
 
   // Fetch kitchens once on mount
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/kitchens`)
+    fetch("http://localhost:5000/api/kitchens")
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
@@ -46,8 +45,8 @@ const StoreContextProvider = ({ children }) => {
   // Function to fetch food items with optional kitchen filtering
   const fetchFoodItems = (kitchenId = null) => {
     const url = kitchenId
-      ? `${API_BASE_URL}/api/food?kitchen_id=${kitchenId}`
-      : `${API_BASE_URL}/api/food`;
+      ? `http://localhost:5000/api/food?kitchen_id=${kitchenId}`
+      : "http://localhost:5000/api/food";
 
     fetch(url)
       .then((res) => res.json())
@@ -83,7 +82,7 @@ const StoreContextProvider = ({ children }) => {
           console.log(`Fetching ratings for food ID: ${food._id}`);
           try {
             const response = await fetch(
-              `${API_BASE_URL}/api/order/food-ratings/${food._id}`
+              `http://localhost:5000/api/order/food-ratings/${food._id}`
             );
             if (response.ok) {
               const data = await response.json();
@@ -124,7 +123,7 @@ const StoreContextProvider = ({ children }) => {
     const fetchCart = async () => {
       if (!user) return;
       try {
-        const res = await fetch(`${API_BASE_URL}/api/cart/${user.id}`);
+        const res = await fetch(`http://localhost:5000/api/cart/${user.id}`);
         if (!res.ok) throw new Error("Failed to fetch cart");
         const cartData = await res.json();
         const cartObj = {};
@@ -153,7 +152,7 @@ const StoreContextProvider = ({ children }) => {
   const refreshCartFromServer = async () => {
     if (!user) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/cart/${user.id}`);
+      const res = await fetch(`http://localhost:5000/api/cart/${user.id}`);
       if (!res.ok) throw new Error("Failed to fetch cart");
       const cartData = await res.json();
       const cartObj = {};
@@ -175,7 +174,7 @@ const StoreContextProvider = ({ children }) => {
     if (!user) return;
 
     try {
-      const res = await fetch("${API_BASE_URL}/api/cart/add", {
+      const res = await fetch("http://localhost:5000/api/cart/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -208,7 +207,7 @@ const StoreContextProvider = ({ children }) => {
     if (!user) return;
 
     try {
-      const res = await fetch("${API_BASE_URL}/api/cart/add", {
+      const res = await fetch("http://localhost:5000/api/cart/add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

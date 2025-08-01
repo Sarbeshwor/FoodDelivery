@@ -3,7 +3,6 @@ import "./Navbar.css";
 import { assets } from "../../assets/assets";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { API_BASE_URL } from "../../config/api";
 import { StoreContext } from "../../context/StoreContext";
 
 const Navbar = ({ setShowLogin, setShowUserDetail }) => {
@@ -17,7 +16,7 @@ const Navbar = ({ setShowLogin, setShowUserDetail }) => {
     const userId = localStorage.getItem("userId");
     if (userId && user) {
       axios
-        .get(`${API_BASE_URL}/api/user/${userId}`)
+        .get(`http://localhost:5000/api/user/${userId}`)
         .then((res) => {
           console.log("Fetched image_url:", res.data.image_url);
 
