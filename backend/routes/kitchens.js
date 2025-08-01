@@ -7,13 +7,17 @@ router.get('/', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
-        k.id as kitchen_id,
+        k._id as kitchen_id,
         k.name as kitchen_name,
+        k.description,
+        k.address,
+        k.phone,
+        k.email,
         k.owner_id,
-        u.username,
-        u.image_url
+        u.name as owner_name,
+        u.email as owner_email
       FROM kitchens k 
-      JOIN users u ON k.owner_id = u.userid
+      LEFT JOIN users u ON k.owner_id = u._id
       ORDER BY k.created_at DESC
     `);
     
