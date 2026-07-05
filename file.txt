@@ -1,0 +1,80 @@
+.MODEL SMALL
+.STACK 100H
+
+.DATA
+
+ARR DB 5,2,8,1,4
+SIZE EQU 5
+
+.CODE
+
+MAIN PROC
+
+    MOV AX,@DATA
+    MOV DS,AX
+
+   
+
+    MOV CX,SIZE-1          ; Outer loop runs SIZE-1 times
+
+OUTER:
+
+    PUSH CX               
+
+    MOV SI,0               
+
+    MOV CX,SIZE-1          
+
+INNER:
+
+    MOV AL,ARR[SI]         ; First element
+    MOV BL,ARR[SI+1]       ; Next element
+
+    CMP AL,BL              ; Compare them
+
+    JLE NEXT               ; If AL <= BL, no swap
+
+    ;----- Swap -----
+
+    MOV ARR[SI],BL
+    MOV ARR[SI+1],AL
+
+NEXT:
+
+    INC SI
+
+    LOOP INNER
+
+    POP CX                 
+
+    LOOP OUTER
+
+   
+
+    MOV CX,SIZE
+    MOV SI,0
+
+PRINT:
+
+    MOV DL,ARR[SI]
+
+    ADD DL,'0'             
+
+    MOV AH,02H
+    INT 21H
+
+    MOV DL,' '             ; Print space
+    MOV AH,02H
+    INT 21H
+
+    INC SI
+
+    LOOP PRINT
+
+   
+
+    MOV AH,4CH
+    INT 21H
+
+MAIN ENDP
+END MAIN
