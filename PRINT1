@@ -1,0 +1,70 @@
+.MODEL SMALL
+.STACK 100H
+
+.DATA
+
+ARR DB 9 DUP(?)
+msg DB 'HELLO BROTHER$'
+SIZE DB ?
+
+.CODE
+
+MAIN PROC
+
+    MOV AX,@DATA
+    MOV DS,AX
+
+   MOV AH,01H
+   INT 21H
+   SUB AL, '0'
+   MOV SIZE, AL
+   
+   LEA SI,ARR
+   MOV CL,SIZE
+   MOV CH,0
+   INPUT:
+        MOV AH,01H
+        INT 21H
+        
+        SUB AL,'0'
+        MOV [SI], AL
+        
+        INC SI
+        LOOP INPUT
+        MOV DL,13
+        INT 21H
+        
+        MOV AH, 02H
+        INT 21H
+        
+        LEA SI, ARR
+        MOV CL, SIZE
+        MOV CH, 0
+        
+        PRINT:
+        MOV AL, [SI]
+        ADD AL ,'0'
+        
+        MOV DL, AL
+        MOV AH, 02H
+        INT 21H
+        
+        INC SI
+        LOOP PRINT
+        
+        
+        
+        
+    
+    
+    
+    
+    
+
+   
+
+    MOV AH,4CH
+    INT 21H
+
+MAIN ENDP
+END MAIN
